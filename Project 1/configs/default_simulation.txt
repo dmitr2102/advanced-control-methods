@@ -1,0 +1,20 @@
+Default simulation setup
+
+- State: s = [phi, phi_dot]^T
+- Action: a = y_ddot
+- Initial condition: phi(0) = 0.22 rad, phi_dot(0) = 0 rad/s
+- Plant parameters: g = 9.81 m/s^2, l = 1.0 m
+- Default damping: d = 0.25
+- Visualization backend: pygame
+- Controllers:
+  - harmonic controller with adjustable amplitude and frequency
+  - tuned default harmonic amplitude: 116.5 m/s^2
+  - tuned default harmonic frequency: 25.3 rad/s
+  - averaged-energy controller based on the old Kapitza-energy Lyapunov argument
+  - tuned averaged-energy parameters: omega = 24.0, target_stiffness = 10.4, angle_gain = 6.0, rate_gain = 0.8
+  - Lyapunov-inspired high-frequency controller from the averaged Kapitza model
+  - tuned Lyapunov parameters: omega = 18.0, k0 = 0.35, k1 = 2.35
+  - PID position controller: alpha = alpha_0 + PID(|phi|)
+  - tuned PID position parameters: omega = 20.0, alpha_0 = 86.5, kp = 20.0, ki = 3.8, kd = 16.5
+  - PID cycle-energy controller: alpha updated from PID feedback on cycle-averaged energy
+  - tuned PID cycle-energy parameters: omega = 14.0, alpha_0 = 82.0, kp = 21.8, ki = 8.5, kd = 6.6, energy_weight = 6.3

@@ -1,0 +1,26 @@
+{
+  "tube_radius": 0.08,
+  "target_angle_deg": 85.60450543331012,
+  "results": [
+    {
+      "label": "Horizontal harmonic",
+      "convergence_time": 9.249999999999796,
+      "tube_percent": 96.58000265022115
+    },
+    {
+      "label": "Horizontal Lyapunov",
+      "convergence_time": 0.7249999999999986,
+      "tube_percent": 94.9302433598287
+    },
+    {
+      "label": "Horizontal averaged-energy",
+      "convergence_time": 2.2208333333333385,
+      "tube_percent": 98.86786707837824
+    },
+    {
+      "label": "Horizontal PID cycle-energy",
+      "convergence_time": 5.479166666666676,
+      "tube_percent": 99.63844553261825
+    }
+  ]
+}

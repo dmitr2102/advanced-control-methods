@@ -1,0 +1,1 @@
+"""Kapitza pendulum project package."""

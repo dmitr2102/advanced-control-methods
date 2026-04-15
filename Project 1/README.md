@@ -134,7 +134,7 @@ The baseline model parameters used throughout the project are:
 | Bob mass | `m` | point-mass bob | symbolic / cancels out of the equations of motion |
 | Viscous damping | `d` | angular damping coefficient | `0.25` |
 | Suspension position | `h(t)` | vertical pivot displacement | control-dependent |
-| Suspension acceleration | `a(t)` | control input, `a = \ddot h` | control-dependent |
+| Suspension acceleration | `a(t)` | control input, `a = h_ddot` | control-dependent |
 
 ### Example GPT-5.4 prompt for building the simulation environment
 

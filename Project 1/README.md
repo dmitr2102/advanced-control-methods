@@ -805,7 +805,7 @@ which combines velocity error, position error, and radial orbit error. The first
 and the direct feedback law is
 
 $$
-a = l\,\frac{\ddot\theta_{\mathrm{ref}}-k_d e_2-k_p e_1-k_o(r-r_\star)\dot\theta+d\dot\theta}{\sin_\varepsilon\theta} - g
+a = l\\frac{\ddot\theta_{\mathrm{ref}}-k_d e_2-k_p e_1-k_o(r-r_\star)\dot\theta+d\dot\theta}{\sin_\varepsilon\theta} - g
 $$
 
 where $k_p$ and $k_d$ are the usual position and rate gains, and $k_o$ controls attraction to the target orbit radius. The regularized denominator $\sin_\varepsilon\theta$ is used instead of $\sin\theta$ near zero to avoid singular behavior in the inversion of the nonlinear pendulum dynamics.

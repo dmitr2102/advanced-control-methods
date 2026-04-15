@@ -7,26 +7,23 @@ from .base import ControllerOutput
 
 
 @dataclass
-class PositionPIDController:
-    """PID controller that modulates carrier amplitude from the angle error."""
+class PositionPDController:
+    """PD controller that modulates carrier amplitude from the angle error."""
 
     carrier_frequency: float = 20.0
     base_amplitude: float = 86.5
     kp: float = 20.0
-    ki: float = 3.8
     kd: float = 16.5
     min_amplitude: float = 62.5
     max_amplitude: float = 113.0
     phase: float = 0.0
-    integral_error: float = 0.0
     previous_error: float = 0.0
     current_amplitude: float = 86.5
     last_time_value: float | None = None
-    name: str = "pid_position"
+    name: str = "pd_position"
 
     def reset(self) -> None:
         self.phase = 0.0
-        self.integral_error = 0.0
         self.previous_error = 0.0
         self.current_amplitude = self.base_amplitude
         self.last_time_value = None
@@ -41,7 +38,6 @@ class PositionPIDController:
 
         error = abs(phi)
         if dt > 0.0:
-            self.integral_error += error * dt
             derivative_error = (error - self.previous_error) / dt
         else:
             derivative_error = 0.0
@@ -49,7 +45,6 @@ class PositionPIDController:
 
         amplitude = self.base_amplitude
         amplitude += self.kp * error
-        amplitude += self.ki * self.integral_error
         amplitude += self.kd * max(0.0, derivative_error)
         amplitude = min(self.max_amplitude, max(self.min_amplitude, amplitude))
         self.current_amplitude = amplitude
@@ -62,7 +57,6 @@ class PositionPIDController:
                 "carrier_frequency": self.carrier_frequency,
                 "amplitude": amplitude,
                 "kp": self.kp,
-                "ki": self.ki,
                 "kd": self.kd,
                 "error": error,
                 "phi_dot": phi_dot,
@@ -71,14 +65,13 @@ class PositionPIDController:
 
 
 @dataclass
-class CycleEnergyPIDController:
-    """PID controller that regulates the averaged energy over each carrier cycle."""
+class CycleEnergyPDController:
+    """PD controller that regulates the averaged energy over each carrier cycle."""
 
     carrier_frequency: float = 14.0
     base_amplitude: float = 82.0
-    kp: float = 21.8
-    ki: float = 8.5
-    kd: float = 6.6
+    kp: float = 24.0
+    kd: float = 7.5
     energy_weight: float = 6.3
     target_cycle_energy: float = 0.0
     min_amplitude: float = 68.5
@@ -86,18 +79,16 @@ class CycleEnergyPIDController:
     phase: float = 0.0
     cycle_energy_sum: float = 0.0
     cycle_elapsed: float = 0.0
-    cycle_error_integral: float = 0.0
     previous_cycle_error: float = 0.0
     last_time_value: float | None = None
     last_cycle_error: float = 0.0
     current_amplitude: float = 82.0
-    name: str = "pid_cycle_energy"
+    name: str = "pd_cycle_energy"
 
     def reset(self) -> None:
         self.phase = 0.0
         self.cycle_energy_sum = 0.0
         self.cycle_elapsed = 0.0
-        self.cycle_error_integral = 0.0
         self.previous_cycle_error = 0.0
         self.last_time_value = None
         self.last_cycle_error = 0.0
@@ -119,14 +110,12 @@ class CycleEnergyPIDController:
         if self.cycle_elapsed >= cycle_period and cycle_period > 0.0:
             average_cycle_energy = self.cycle_energy_sum / self.cycle_elapsed
             cycle_error = average_cycle_energy - self.target_cycle_energy
-            self.cycle_error_integral += cycle_error * self.cycle_elapsed
             derivative_error = (cycle_error - self.previous_cycle_error) / self.cycle_elapsed
             self.previous_cycle_error = cycle_error
             self.last_cycle_error = cycle_error
 
             amplitude = self.base_amplitude
             amplitude += self.kp * cycle_error
-            amplitude += self.ki * self.cycle_error_integral
             amplitude += self.kd * max(0.0, derivative_error)
             self.current_amplitude = min(self.max_amplitude, max(self.min_amplitude, amplitude))
 
@@ -141,8 +130,13 @@ class CycleEnergyPIDController:
                 "carrier_frequency": self.carrier_frequency,
                 "amplitude": self.current_amplitude,
                 "kp": self.kp,
-                "ki": self.ki,
                 "kd": self.kd,
                 "cycle_energy_error": self.last_cycle_error,
             },
         )
+
+
+# Backward-compatible aliases used by existing scripts.
+PositionPIDController = PositionPDController
+CycleEnergyPIDController = CycleEnergyPDController
+

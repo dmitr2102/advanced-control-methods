@@ -4,15 +4,11 @@ import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-
-from gif_plot_utils import (
+from PIL import Image
+from matplotlib_gif_utils import (
     compute_positive_limits,
     compute_symmetric_limits,
-    draw_axes_and_series,
-    draw_info_lines,
-    draw_pendulum_panel,
-    standard_layout,
+    render_standard_frame,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -34,19 +30,9 @@ def draw_frame(
     v_samples: list[tuple[float, float]],
     control_samples: list[tuple[float, float]],
     current_phi: float,
-    current_action: float,
     controller: DirectLyapunovController,
     params: PendulumParameters,
 ) -> Image.Image:
-    layout = standard_layout()
-    width, height = layout["size"]
-    image = Image.new("RGB", (width, height), (245, 244, 240))
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()
-
-    draw.text((40, 20), "Direct Lyapunov stabilization on the exact vertical pendulum model", fill=(30, 45, 80), font=font)
-    draw_pendulum_panel(draw, layout["left_panel"], layout["pivot"], int(layout["rod_px"] * params.length), current_phi, current_action)
-
     info_lines = [
         f"d = {params.damping:.2f}",
         "",
@@ -61,36 +47,35 @@ def draw_frame(
         "Lyapunov function:",
         "V = 0.5 phi_dot^2 + k_p (1 - cos phi)",
     ]
-    draw_info_lines(draw, layout["info_x"], layout["info_y"], info_lines, layout["info_step"])
-
-    draw_axes_and_series(
-        draw,
-        layout["plot_top"],
-        [{"samples": phi_samples, "color": (38, 98, 170), "label": "phi(t)"}],
-        "Angle deviation",
-        "t [s]",
-        "phi [rad]",
-        compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+    return render_standard_frame(
+        title="Direct Lyapunov stabilization on the exact vertical pendulum model",
+        current_phi=current_phi,
+        rod_length=params.length,
+        info_lines=info_lines,
+        plot_defs=[
+            {
+                "series": [{"samples": phi_samples, "color": "#2662AA", "label": "phi(t)"}],
+                "title": "Angle deviation",
+                "x_label": "t [s]",
+                "y_label": "phi [rad]",
+                "y_limits": compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+            },
+            {
+                "series": [{"samples": v_samples, "color": "#D46424", "label": "V_dir(t)"}],
+                "title": "Direct Lyapunov function",
+                "x_label": "t [s]",
+                "y_label": "V_dir",
+                "y_limits": compute_positive_limits((value for _, value in v_samples), minimum_upper=0.12),
+            },
+            {
+                "series": [{"samples": control_samples, "color": "#606060", "label": "a(t)"}],
+                "title": "Control signal",
+                "x_label": "t [s]",
+                "y_label": "a [m/s^2]",
+                "y_limits": compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=20.0),
+            },
+        ],
     )
-    draw_axes_and_series(
-        draw,
-        layout["plot_mid"],
-        [{"samples": v_samples, "color": (212, 100, 36), "label": "V_dir(t)"}],
-        "Direct Lyapunov function",
-        "t [s]",
-        "V_dir",
-        compute_positive_limits((value for _, value in v_samples), minimum_upper=0.12),
-    )
-    draw_axes_and_series(
-        draw,
-        layout["plot_bot"],
-        [{"samples": control_samples, "color": (90, 90, 90), "label": "a(t)"}],
-        "Control signal",
-        "t [s]",
-        "a [m/s^2]",
-        compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=20.0),
-    )
-    return image
 
 
 def main() -> None:
@@ -131,7 +116,7 @@ def main() -> None:
             window.pop(0)
 
         if step % frame_interval == 0:
-            frames.append(draw_frame(phi_samples, v_samples, control_samples, state.phi, state.action, controller, params))
+            frames.append(draw_frame(phi_samples, v_samples, control_samples, state.phi, controller, params))
 
         if stable_time is None and state.time_value > 1.0 and max(item[1] for item in window) < 0.10 and max(item[2] for item in window) < 0.40:
             stable_time = state.time_value

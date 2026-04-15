@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from controllers.averaged_energy import AveragedEnergyController
 from controllers.harmonic import HarmonicController
+from controllers.limit_cycle_lyapunov import LimitCycleLyapunovController
 from controllers.lyapunov import LyapunovController
-from controllers.pid import CycleEnergyPIDController, PositionPIDController
+from controllers.pid import CycleEnergyPDController, PositionPDController
 from simulation import PendulumSimulator, SimulationConfig
 from system import KapitzaPendulumPlant, PendulumParameters
 from visualization import PygameSimulationApp
@@ -26,14 +27,20 @@ def main() -> None:
         gravity=params.gravity,
         length=params.length,
     )
-    pid_position_controller = PositionPIDController()
-    pid_cycle_energy_controller = CycleEnergyPIDController()
+    limit_cycle_controller = LimitCycleLyapunovController(
+        gravity=params.gravity,
+        length=params.length,
+        damping=params.damping,
+    )
+    pid_position_controller = PositionPDController()
+    pid_cycle_energy_controller = CycleEnergyPDController()
 
     app = PygameSimulationApp(
         simulator=simulator,
         harmonic_controller=harmonic_controller,
         averaged_energy_controller=averaged_energy_controller,
         lyapunov_controller=lyapunov_controller,
+        limit_cycle_controller=limit_cycle_controller,
         pid_position_controller=pid_position_controller,
         pid_cycle_energy_controller=pid_cycle_energy_controller,
         plant_params=params,

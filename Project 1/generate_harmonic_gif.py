@@ -3,8 +3,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-from gif_plot_utils import compute_symmetric_limits, draw_axes_and_series, draw_info_lines, draw_pendulum_panel, standard_layout
+from PIL import Image
+from matplotlib_gif_utils import compute_symmetric_limits, render_standard_frame
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 SRC_DIR = PROJECT_ROOT / "src"
@@ -25,14 +25,6 @@ def draw_frame(
     controller: HarmonicController,
     params: PendulumParameters,
 ) -> Image.Image:
-    layout = standard_layout()
-    width, height = layout["size"]
-    image = Image.new("RGB", (width, height), (245, 244, 240))
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()
-    draw.text((40, 20), "Tuned harmonic controller for the Kapitza pendulum", fill=(30, 45, 80), font=font)
-
-    draw_pendulum_panel(draw, layout["left_panel"], layout["pivot"], int(layout["rod_px"] * params.length), current_phi, current_action)
     info_lines = [
         "Constant harmonic excitation",
         "",
@@ -43,36 +35,35 @@ def draw_frame(
         "Green marker: upright target",
         "Orange bob: current pendulum state",
     ]
-    draw_info_lines(draw, layout["info_x"], layout["info_y"], info_lines, layout["info_step"])
-
-    draw_axes_and_series(
-        draw,
-        layout["plot_top"],
-        [{"samples": phi_samples, "color": (38, 98, 170), "label": "phi(t)"}],
-        "Angle deviation",
-        "t [s]",
-        "phi [rad]",
-        compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+    return render_standard_frame(
+        title="Tuned harmonic controller for the Kapitza pendulum",
+        current_phi=current_phi,
+        rod_length=params.length,
+        info_lines=info_lines,
+        plot_defs=[
+            {
+                "series": [{"samples": phi_samples, "color": "#2662AA", "label": "phi(t)"}],
+                "title": "Angle deviation",
+                "x_label": "t [s]",
+                "y_label": "phi [rad]",
+                "y_limits": compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+            },
+            {
+                "series": [{"samples": freq_samples, "color": "#D46424", "label": "omega"}],
+                "title": "Carrier frequency",
+                "x_label": "t [s]",
+                "y_label": "omega [rad/s]",
+                "y_limits": (controller.frequency - 1.0, controller.frequency + 1.0),
+            },
+            {
+                "series": [{"samples": control_samples, "color": "#606060", "label": "a(t)"}],
+                "title": "Control signal",
+                "x_label": "t [s]",
+                "y_label": "a [m/s^2]",
+                "y_limits": compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=70.0),
+            },
+        ],
     )
-    draw_axes_and_series(
-        draw,
-        layout["plot_mid"],
-        [{"samples": freq_samples, "color": (212, 100, 36), "label": "omega"}],
-        "Carrier frequency",
-        "t [s]",
-        "omega [rad/s]",
-        (controller.frequency - 1.0, controller.frequency + 1.0),
-    )
-    draw_axes_and_series(
-        draw,
-        layout["plot_bot"],
-        [{"samples": control_samples, "color": (90, 90, 90), "label": "a(t)"}],
-        "Control signal",
-        "t [s]",
-        "a [m/s^2]",
-        compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=70.0),
-    )
-    return image
 
 
 def main() -> None:

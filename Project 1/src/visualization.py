@@ -7,8 +7,9 @@ import pygame
 
 from controllers.averaged_energy import AveragedEnergyController
 from controllers.harmonic import HarmonicController
+from controllers.limit_cycle_lyapunov import LimitCycleLyapunovController
 from controllers.lyapunov import LyapunovController
-from controllers.pid import CycleEnergyPIDController, PositionPIDController
+from controllers.pid import CycleEnergyPDController, PositionPDController
 from simulation import PendulumSimulator
 from system import PendulumParameters
 
@@ -28,8 +29,9 @@ class PygameSimulationApp:
         harmonic_controller: HarmonicController,
         averaged_energy_controller: AveragedEnergyController,
         lyapunov_controller: LyapunovController,
-        pid_position_controller: PositionPIDController,
-        pid_cycle_energy_controller: CycleEnergyPIDController,
+        limit_cycle_controller: LimitCycleLyapunovController,
+        pid_position_controller: PositionPDController,
+        pid_cycle_energy_controller: CycleEnergyPDController,
         plant_params: PendulumParameters,
         view: ViewConfig | None = None,
     ) -> None:
@@ -37,6 +39,7 @@ class PygameSimulationApp:
         self.harmonic_controller = harmonic_controller
         self.averaged_energy_controller = averaged_energy_controller
         self.lyapunov_controller = lyapunov_controller
+        self.limit_cycle_controller = limit_cycle_controller
         self.pid_position_controller = pid_position_controller
         self.pid_cycle_energy_controller = pid_cycle_energy_controller
         self.current_controller = harmonic_controller
@@ -45,7 +48,7 @@ class PygameSimulationApp:
         self.view = view or ViewConfig()
         self.is_running = True
         self.is_paused = False
-        self.message = "1 harmonic, 2 averaged-energy, 3 CLF, 4 PID-pos, 5 PID-energy."
+        self.message = "1 harmonic, 2 averaged-energy, 3 CLF, 4 orbit-Lyap, 5 PD-pos, 6 PD-energy."
 
         pygame.init()
         pygame.display.set_caption("Kapitza Pendulum Simulator")
@@ -92,13 +95,17 @@ class PygameSimulationApp:
             self._reset_current_controller()
             self.message = "Closed-loop Lyapunov controller selected."
         elif key == pygame.K_4:
+            self.current_controller = self.limit_cycle_controller
+            self._reset_current_controller()
+            self.message = "Limit-cycle Lyapunov controller selected."
+        elif key == pygame.K_5:
             self.current_controller = self.pid_position_controller
             self._reset_current_controller()
-            self.message = "PID position controller selected."
-        elif key == pygame.K_5:
+            self.message = "PD position controller selected."
+        elif key == pygame.K_6:
             self.current_controller = self.pid_cycle_energy_controller
             self._reset_current_controller()
-            self.message = "PID cycle-energy controller selected."
+            self.message = "PD cycle-energy controller selected."
         elif key == pygame.K_UP and self.current_controller is self.harmonic_controller:
             self.harmonic_controller.amplitude += 0.5
             self.message = f"Harmonic amplitude increased to {self.harmonic_controller.amplitude:.2f} m/s^2."
@@ -113,13 +120,12 @@ class PygameSimulationApp:
             self.message = f"Harmonic frequency decreased to {self.harmonic_controller.frequency:.2f} rad/s."
         elif key == pygame.K_z:
             self.selected_pid_gain = "kp"
-            self.message = "PID gain selection: kp."
+            self.message = "PD gain selection: kp."
         elif key == pygame.K_x:
-            self.selected_pid_gain = "ki"
-            self.message = "PID gain selection: ki."
+            self.message = "No integral gain in PD control."
         elif key == pygame.K_c:
             self.selected_pid_gain = "kd"
-            self.message = "PID gain selection: kd."
+            self.message = "PD gain selection: kd."
         elif key == pygame.K_j:
             self._adjust_pid_gain(-1.0)
         elif key == pygame.K_k:
@@ -135,6 +141,7 @@ class PygameSimulationApp:
             self.harmonic_controller,
             self.averaged_energy_controller,
             self.lyapunov_controller,
+            self.limit_cycle_controller,
             self.pid_position_controller,
             self.pid_cycle_energy_controller,
         ):
@@ -145,7 +152,7 @@ class PygameSimulationApp:
     def _adjust_pid_gain(self, direction: float) -> None:
         if self.current_controller not in (self.pid_position_controller, self.pid_cycle_energy_controller):
             return
-        step_sizes = {"kp": 5.0, "ki": 2.0, "kd": 2.0}
+        step_sizes = {"kp": 5.0, "kd": 2.0}
         attr_name = self.selected_pid_gain
         new_value = max(0.0, getattr(self.current_controller, attr_name) + direction * step_sizes[attr_name])
         setattr(self.current_controller, attr_name, new_value)
@@ -204,12 +211,13 @@ class PygameSimulationApp:
             "1: harmonic controller",
             "2: averaged-energy controller",
             "3: CLF Lyapunov controller",
-            "4: PID position controller",
-            "5: PID cycle-energy controller",
+            "4: orbit Lyapunov controller",
+            "5: PD position controller",
+            "6: PD cycle-energy controller",
             "UP/DOWN: amplitude +/-",
             "LEFT/RIGHT: frequency +/-",
-            "Z/X/C: choose kp/ki/kd",
-            "J/K: selected PID gain -/+",
+            "Z/C: choose kp/kd",
+            "J/K: selected PD gain -/+",
             "SPACE: pause/resume",
             "R: reset",
             "ESC: quit",
@@ -231,16 +239,22 @@ class PygameSimulationApp:
             f"min amp:   {self.lyapunov_controller.min_amplitude:7.2f} m/s^2",
             f"max amp:   {self.lyapunov_controller.max_amplitude:7.2f} m/s^2",
             "",
-            "PID position parameters",
+            "Orbit Lyapunov parameters",
+            f"A*:        {self.limit_cycle_controller.target_amplitude:7.2f} rad",
+            f"w*:        {self.limit_cycle_controller.target_frequency:7.2f} rad/s",
+            f"carrier w: {self.limit_cycle_controller.carrier_frequency:7.2f} rad/s",
+            f"kp:        {self.limit_cycle_controller.position_gain:7.2f}",
+            f"kd:        {self.limit_cycle_controller.rate_gain:7.2f}",
+            f"kE:        {self.limit_cycle_controller.energy_gain:7.2f}",
+            "",
+            "PD position parameters",
             f"base amp:  {self.pid_position_controller.base_amplitude:7.2f} m/s^2",
             f"kp:        {self.pid_position_controller.kp:7.2f}",
-            f"ki:        {self.pid_position_controller.ki:7.2f}",
             f"kd:        {self.pid_position_controller.kd:7.2f}",
             "",
-            "PID energy parameters",
+            "PD energy parameters",
             f"base amp:  {self.pid_cycle_energy_controller.base_amplitude:7.2f} m/s^2",
             f"kp:        {self.pid_cycle_energy_controller.kp:7.2f}",
-            f"ki:        {self.pid_cycle_energy_controller.ki:7.2f}",
             f"kd:        {self.pid_cycle_energy_controller.kd:7.2f}",
             f"gain edit: {self.selected_pid_gain}",
             "",

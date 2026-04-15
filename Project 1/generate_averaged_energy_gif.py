@@ -4,14 +4,11 @@ import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-from gif_plot_utils import (
+from PIL import Image
+from matplotlib_gif_utils import (
     compute_positive_limits,
     compute_symmetric_limits,
-    draw_axes_and_series,
-    draw_info_lines,
-    draw_pendulum_panel,
-    standard_layout,
+    render_standard_frame,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -36,22 +33,9 @@ def draw_frame(
     phi_samples: list[tuple[float, float]],
     v_samples: list[tuple[float, float]],
     control_samples: list[tuple[float, float]],
-    current_time: float,
     current_phi: float,
-    current_action: float,
-    current_amplitude: float,
     params: PendulumParameters,
 ) -> Image.Image:
-    layout = standard_layout()
-    width, height = layout["size"]
-    image = Image.new("RGB", (width, height), (245, 244, 240))
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()
-
-    draw.text((40, 20), "Averaged-energy controller for the Kapitza pendulum", fill=(30, 45, 80), font=font)
-
-    draw_pendulum_panel(draw, layout["left_panel"], layout["pivot"], int(layout["rod_px"] * params.length), current_phi, current_action)
-
     info_lines = [
         f"d = {params.damping: .2f}",
         "",
@@ -63,39 +47,35 @@ def draw_frame(
         "with amplitude shaping based on",
         "the averaged Kapitza energy.",
     ]
-    draw_info_lines(draw, layout["info_x"], layout["info_y"], info_lines, layout["info_step"])
-
-    draw_axes_and_series(
-        draw,
-        layout["plot_top"],
-        [{"samples": phi_samples, "color": (38, 98, 170), "label": "phi(t)"}],
-        "Angle deviation",
-        "t [s]",
-        "phi [rad]",
-        compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+    return render_standard_frame(
+        title="Averaged-energy controller for the Kapitza pendulum",
+        current_phi=current_phi,
+        rod_length=params.length,
+        info_lines=info_lines,
+        plot_defs=[
+            {
+                "series": [{"samples": phi_samples, "color": "#2662AA", "label": "phi(t)"}],
+                "title": "Angle deviation",
+                "x_label": "t [s]",
+                "y_label": "phi [rad]",
+                "y_limits": compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+            },
+            {
+                "series": [{"samples": v_samples, "color": "#D46424", "label": "V(t)"}],
+                "title": "Averaged-energy Lyapunov value",
+                "x_label": "t [s]",
+                "y_label": "V",
+                "y_limits": compute_positive_limits((value for _, value in v_samples), minimum_upper=0.25),
+            },
+            {
+                "series": [{"samples": control_samples, "color": "#606060", "label": "a(t)"}],
+                "title": "Control signal",
+                "x_label": "t [s]",
+                "y_label": "a [m/s^2]",
+                "y_limits": compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=60.0),
+            },
+        ],
     )
-    value_limits = compute_positive_limits((value for _, value in v_samples), minimum_upper=0.25)
-    control_limits = compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=60.0)
-    draw_axes_and_series(
-        draw,
-        layout["plot_mid"],
-        [{"samples": v_samples, "color": (212, 100, 36), "label": "V(t)"}],
-        "Averaged-energy Lyapunov value",
-        "t [s]",
-        "V",
-        value_limits,
-    )
-    draw_axes_and_series(
-        draw,
-        layout["plot_bot"],
-        [{"samples": control_samples, "color": (90, 90, 90), "label": "a(t)"}],
-        "Control signal",
-        "t [s]",
-        "a [m/s^2]",
-        control_limits,
-    )
-
-    return image
 
 
 def main() -> None:
@@ -152,10 +132,7 @@ def main() -> None:
                     phi_samples=phi_samples,
                     v_samples=v_samples,
                     control_samples=control_samples,
-                    current_time=state.time_value,
                     current_phi=state.phi,
-                    current_action=state.action,
-                    current_amplitude=amplitude,
                     params=params,
                 )
             )

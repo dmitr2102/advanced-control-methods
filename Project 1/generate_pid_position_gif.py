@@ -4,15 +4,19 @@ import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-from gif_plot_utils import compute_symmetric_limits, draw_axes_and_series, draw_info_lines, draw_pendulum_panel, standard_layout
+from PIL import Image
+from matplotlib_gif_utils import (
+    compute_positive_limits,
+    compute_symmetric_limits,
+    render_standard_frame,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from controllers.pid import PositionPIDController
+from controllers.pid import PositionPDController
 from simulation import PendulumSimulator, SimulationConfig
 from system import KapitzaPendulumPlant, PendulumParameters
 
@@ -21,62 +25,48 @@ def draw_frame(
     phi_samples: list[tuple[float, float]],
     amp_samples: list[tuple[float, float]],
     control_samples: list[tuple[float, float]],
-    current_time: float,
     current_phi: float,
-    current_action: float,
-    current_amplitude: float,
     params: PendulumParameters,
-    controller: PositionPIDController,
+    controller: PositionPDController,
 ) -> Image.Image:
-    layout = standard_layout()
-    width, height = layout["size"]
-    image = Image.new("RGB", (width, height), (245, 244, 240))
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()
-    draw.text((40, 20), "PID position controller for the Kapitza pendulum", fill=(30, 45, 80), font=font)
-
-    draw_pendulum_panel(draw, layout["left_panel"], layout["pivot"], int(layout["rod_px"] * params.length), current_phi, current_action)
-
-    lines = [
+    info_lines = [
         "",
         "Law:",
-        "alpha = base + PID(|phi|)",
+        "alpha = base + PD(|phi|)",
         "a(t) = alpha cos(omega t)",
         "",
         f"kp = {controller.kp:.1f}",
-        f"ki = {controller.ki:.1f}",
         f"kd = {controller.kd:.1f}",
     ]
-    draw_info_lines(draw, layout["info_x"], layout["info_y"], lines, layout["info_step"])
-
-    draw_axes_and_series(
-        draw,
-        layout["plot_top"],
-        [{"samples": phi_samples, "color": (38, 98, 170), "label": "phi(t)"}],
-        "Angle deviation",
-        "t [s]",
-        "phi [rad]",
-        compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+    return render_standard_frame(
+        title="PD position controller for the Kapitza pendulum",
+        current_phi=current_phi,
+        rod_length=params.length,
+        info_lines=info_lines,
+        plot_defs=[
+            {
+                "series": [{"samples": phi_samples, "color": "#2662AA", "label": "phi(t)"}],
+                "title": "Angle deviation",
+                "x_label": "t [s]",
+                "y_label": "phi [rad]",
+                "y_limits": compute_symmetric_limits((value for _, value in phi_samples), minimum_half_range=0.15),
+            },
+            {
+                "series": [{"samples": amp_samples, "color": "#D46424", "label": "alpha(t)"}],
+                "title": "Carrier amplitude",
+                "x_label": "t [s]",
+                "y_label": "alpha [m/s^2]",
+                "y_limits": compute_positive_limits((value for _, value in amp_samples), minimum_upper=140.0),
+            },
+            {
+                "series": [{"samples": control_samples, "color": "#606060", "label": "a(t)"}],
+                "title": "Control signal",
+                "x_label": "t [s]",
+                "y_label": "a [m/s^2]",
+                "y_limits": compute_symmetric_limits((value for _, value in control_samples), minimum_half_range=60.0),
+            },
+        ],
     )
-    draw_axes_and_series(
-        draw,
-        layout["plot_mid"],
-        [{"samples": amp_samples, "color": (212, 100, 36), "label": "alpha(t)"}],
-        "Carrier amplitude",
-        "t [s]",
-        "alpha [m/s^2]",
-        (60.0, 140.0),
-    )
-    draw_axes_and_series(
-        draw,
-        layout["plot_bot"],
-        [{"samples": control_samples, "color": (90, 90, 90), "label": "a(t)"}],
-        "Control signal",
-        "t [s]",
-        "a [m/s^2]",
-        (-150.0, 150.0),
-    )
-    return image
 
 
 def main() -> None:
@@ -87,11 +77,10 @@ def main() -> None:
         KapitzaPendulumPlant(params),
         SimulationConfig(dt=1.0 / 240.0, initial_phi=0.2, initial_phi_dot=0.0, max_abs_action=140.0),
     )
-    controller = PositionPIDController(
+    controller = PositionPDController(
         carrier_frequency=20.0,
         base_amplitude=86.5,
         kp=20.0,
-        ki=3.8,
         kd=16.5,
         min_amplitude=62.5,
         max_amplitude=113.0,
@@ -118,10 +107,7 @@ def main() -> None:
                     phi_samples,
                     amp_samples,
                     control_samples,
-                    state.time_value,
                     state.phi,
-                    state.action,
-                    controller.current_amplitude,
                     params,
                     controller,
                 )
@@ -131,7 +117,7 @@ def main() -> None:
             break
 
     if stable_time is None:
-        raise RuntimeError("Position PID controller did not stabilize within the simulation horizon.")
+        raise RuntimeError("Position PD controller did not stabilize within the simulation horizon.")
 
     frames[0].save(
         output_path,

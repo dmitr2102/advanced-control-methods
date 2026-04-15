@@ -5,13 +5,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-from gif_plot_utils import (
+from PIL import Image
+from matplotlib_gif_utils import (
+    compute_positive_limits,
     compute_symmetric_limits,
-    draw_axes_and_series,
-    draw_info_lines,
-    draw_pendulum_panel,
-    standard_layout,
+    render_standard_frame,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -60,62 +58,45 @@ class RampHarmonicController:
 
 def draw_frame(
     samples: list[tuple[float, float, float, float, float]],
-    current_time: float,
     current_phi: float,
-    current_action: float,
-    current_omega: float,
     params: PendulumParameters,
-    image_size: tuple[int, int] = (1400, 920),
 ) -> Image.Image:
-    layout = standard_layout()
-    width, height = image_size
-    image = Image.new("RGB", image_size, (245, 244, 240))
-    draw = ImageDraw.Draw(image)
-    title_font = ImageFont.load_default()
-    text_font = ImageFont.load_default()
-
-    draw.text((60, 55), "Kapitza pendulum with frequency ramp", fill=(30, 45, 80), font=title_font)
-    draw_pendulum_panel(draw, layout["left_panel"], layout["pivot"], int(layout["rod_px"] * params.length), current_phi, current_action)
-
     info_lines = [
-        f"omega = {current_omega: .2f} rad/s",
         "",
         "Ramp law:",
         "omega(t) increases smoothly",
         "until the pendulum settles",
         "near the upright equilibrium.",
     ]
-    draw_info_lines(draw, layout["info_x"], layout["info_y"], info_lines, layout["info_step"])
-
-    draw_axes_and_series(
-        draw,
-        layout["plot_top"],
-        [{"samples": [(time_value, phi_value) for time_value, phi_value, _, _, _ in samples], "color": (38, 98, 170), "label": "phi(t)"}],
-        "Angle deviation",
-        "t [s]",
-        "phi [rad]",
-        compute_symmetric_limits((phi_value for _, phi_value, _, _, _ in samples), minimum_half_range=0.15),
+    return render_standard_frame(
+        title="Kapitza pendulum with frequency ramp",
+        current_phi=current_phi,
+        rod_length=params.length,
+        info_lines=info_lines,
+        plot_defs=[
+            {
+                "series": [{"samples": [(time_value, phi_value) for time_value, phi_value, _, _, _ in samples], "color": "#2662AA", "label": "phi(t)"}],
+                "title": "Angle deviation",
+                "x_label": "t [s]",
+                "y_label": "phi [rad]",
+                "y_limits": compute_symmetric_limits((phi_value for _, phi_value, _, _, _ in samples), minimum_half_range=0.15),
+            },
+            {
+                "series": [{"samples": [(time_value, omega_value) for time_value, _, _, _, omega_value in samples], "color": "#D46424", "label": "omega(t)"}],
+                "title": "Frequency ramp",
+                "x_label": "t [s]",
+                "y_label": "omega [rad/s]",
+                "y_limits": compute_positive_limits((omega_value for _, _, _, _, omega_value in samples), minimum_upper=19.0),
+            },
+            {
+                "series": [{"samples": [(time_value, action_value) for time_value, _, _, action_value, _ in samples], "color": "#606060", "label": "a(t)"}],
+                "title": "Control signal",
+                "x_label": "t [s]",
+                "y_label": "a [m/s^2]",
+                "y_limits": compute_symmetric_limits((action_value for _, _, _, action_value, _ in samples), minimum_half_range=60.0),
+            },
+        ],
     )
-    draw_axes_and_series(
-        draw,
-        layout["plot_mid"],
-        [{"samples": [(time_value, omega_value) for time_value, _, _, _, omega_value in samples], "color": (212, 100, 36), "label": "omega(t)"}],
-        "Frequency ramp",
-        "t [s]",
-        "omega [rad/s]",
-        (14.0, 19.0),
-    )
-    draw_axes_and_series(
-        draw,
-        layout["plot_bot"],
-        [{"samples": [(time_value, action_value) for time_value, _, _, action_value, _ in samples], "color": (90, 90, 90), "label": "a(t)"}],
-        "Control signal",
-        "t [s]",
-        "a [m/s^2]",
-        compute_symmetric_limits((action_value for _, _, action_value, _, _ in samples), minimum_half_range=60.0),
-    )
-
-    return image
 
 
 def has_stabilized(window: list[tuple[float, float, float, float, float]]) -> bool:
@@ -171,10 +152,7 @@ def main() -> None:
             frames.append(
                 draw_frame(
                     samples=samples,
-                    current_time=state.time_value,
                     current_phi=state.phi,
-                    current_action=state.action,
-                    current_omega=controller.current_omega,
                     params=params,
                 )
             )

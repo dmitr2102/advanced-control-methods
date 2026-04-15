@@ -829,7 +829,6 @@ where $k_p$ and $k_d$ are the usual position and rate gains, and $k_o$ controls 
 
 ```text
 +-- README.md
-+-- README_horizontal_excitation.md
 +-- requirements.txt
 +-- configs/
 ¦   +-- default_simulation.txt

@@ -1,5 +1,5 @@
 # Kapitza Pendulum Stabilization
-
+aaaaa
 This project studies stabilization of the Kapitza pendulum using Lyapunov-based methods.
 
 <a href="animations/direct_orbit_tracking_outside_clean.gif">

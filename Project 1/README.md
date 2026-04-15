@@ -14,6 +14,7 @@ The main goal of the project is to study how a Kapitza pendulum can be stabilize
   <img src="figures/Kapitza_pendulum.svg.png" width="40%" alt="Direct orbit tracking title animation">
 </a>
 
+
 ## Main Results
 
 | Method | Physically admissible Kapitza control | Main task | Main outcome |

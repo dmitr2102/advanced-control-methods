@@ -14,6 +14,7 @@ The main goal of the project is to study how a Kapitza pendulum can be stabilize
   <img src="figures/Kapitza_pendulum.svg.png" width="40%" alt="Direct orbit tracking title animation">
 </a>
 
+
 ## Main Results
 
 | Method | Physically admissible Kapitza control | Main task | Main outcome |
@@ -21,7 +22,7 @@ The main goal of the project is to study how a Kapitza pendulum can be stabilize
 | Harmonic controller | Yes | Upright stabilization | Stabilizes the upright equilibrium, but with slower transients than feedback-based methods |
 | Averaged-energy controller | Yes | Upright stabilization | Works reliably in the averaged regime, but remains slower than the best tuned feedback laws |
 | PD cycle-energy controller | Yes | Upright stabilization | Fastest practical settling among the tuned physically admissible controllers |
-| Lyapunov CLF controller | Yes | Upright stabilization | Cleanest analytical stability interpretation and strongest local decay behavior |
+| CLF controller | Yes | Upright stabilization | Cleanest analytical stability interpretation and strongest local decay behavior |
 | Adaptive limit-cycle Lyapunov controller | Yes | Zero-mean orbital tracking | Did not achieve substantial orbit tracking; motion stayed near the upright equilibrium |
 | Direct orbit-tracking benchmark | No | Trajectory tracking | Tracks the prescribed orbit well once the zero-mean restriction is removed |
 
@@ -37,7 +38,7 @@ In this project, the pendulum state is defined as
 
 $$
 \begin{aligned}
-s &= \begin{bmatrix} s_1 \\ s_2 \\ s_3 \\ s_4 \end{bmatrix} \\
+s &= \begin{bmatrix} s_1 \\ s_2 \\ s_3 \\ s_4 \end{bmatrix}
   &= \begin{bmatrix} h \\ \theta \\ \dot h \\ \dot\theta \end{bmatrix}.
 \end{aligned}
 $$
@@ -67,7 +68,7 @@ as the control input. If the pivot motion is harmonic,
 
 $$
 \begin{aligned}
-h(t) &= H\cos(\omega t), \\
+h(t) &= H\cos(\omega t),
 \ddot h(t) &= -H\omega^2\cos(\omega t).
 \end{aligned}
 $$
@@ -120,7 +121,7 @@ Hence, the squared speed is
 
 $$
 \begin{aligned}
-v^2 &= \dot{x}^2 + \dot{z}^2 \\
+v^2 &= \dot{x}^2 + \dot{z}^2
     &= l^2 \dot{\theta}^2 + \dot{h}^2 - 2 l \dot{h} \dot{\theta} \sin \theta.
 \end{aligned}
 $$
@@ -338,6 +339,10 @@ $$
 $$
 
 All animations are drawn in the suspension-point frame to avoid visual vertical jittering.
+
+
+
+
 [![Harmonic stabilization tuned](animations/harmonic_stabilization_tuned.gif)](animations/harmonic_stabilization_tuned.gif)
 
 
@@ -824,7 +829,6 @@ where $k_p$ and $k_d$ are the usual position and rate gains, and $k_o$ controls 
 
 ```text
 +-- README.md
-+-- README_horizontal_excitation.md
 +-- requirements.txt
 +-- configs/
 ¦   +-- default_simulation.txt

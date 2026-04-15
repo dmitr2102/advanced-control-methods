@@ -9,8 +9,9 @@ This project studies stabilization of the Kapitza pendulum using Lyapunov-based 
 ## Problem Definition
 
 The main goal of the project is to study how a Kapitza pendulum can be stabilized and controlled through vertical oscillations of the suspension point with Lyapunov-based design.
+
 <a href="figures/Kapitza_pendulum.svg.png">
-  <img src="figures/Kapitza_pendulum.svg.png" width="50%" alt="Direct orbit tracking title animation">
+  <img src="figures/Kapitza_pendulum.svg.png" width="40%" alt="Direct orbit tracking title animation">
 </a>
 
 ## Main Results
@@ -35,20 +36,8 @@ The main goal of the project is to study how a Kapitza pendulum can be stabilize
 In this project, the pendulum state is defined as
 
 $$
-s =
-\begin{bmatrix}
-s_1 \\
-s_2 \\
-s_3 \\
-s_4
-\end{bmatrix}
-=
-\begin{bmatrix}
-h \\
-\theta \\
-\dot h \\
-\dot\theta
-\end{bmatrix},
+s = \begin{bmatrix} s_1 \\ s_2 \\ s_3 \\ s_4 \end{bmatrix}
+= \begin{bmatrix} h \\ \theta \\ \dot h \\ \dot\theta \end{bmatrix},
 $$
 
 where
@@ -252,8 +241,7 @@ In vector form,
 
 $$
 \dot{s} = p(s, a)
-=
-\begin{bmatrix}
+= \begin{bmatrix}
 s_3 \\
 s_4 \\
 a \\
@@ -570,7 +558,7 @@ $$
 
 This law is state-dependent through the angle $\theta$, so it is designed from a closed-loop target dynamics rather than from an open-loop averaged energy alone.
 
-#### Interpretation of $k_{\mathrm{eff}}$
+#### Interpretation of `k_eff`
 
 The quantity
 

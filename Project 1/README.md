@@ -20,9 +20,8 @@ The main goal of the project is to study how a Kapitza pendulum can be stabilize
 | Method | Physically admissible Kapitza control | Main task | Main outcome |
 | --- | --- | --- | --- |
 | Harmonic controller | Yes | Upright stabilization | Stabilizes the upright equilibrium, but with slower transients than feedback-based methods |
-| Averaged-energy controller | Yes | Upright stabilization | Works reliably in the averaged regime, but remains slower than the best tuned feedback laws |
 | PD cycle-energy controller | Yes | Upright stabilization | Fastest practical settling among the tuned physically admissible controllers |
-| CLF controller | Yes | Upright stabilization | Cleanest analytical stability interpretation and strongest local decay behavior |
+| Lyapunov Control Lyapunov Function (CLF) controller | Yes | Upright stabilization | Cleanest analytical stability interpretation and strongest local decay behavior |
 | Adaptive limit-cycle Lyapunov controller | Yes | Zero-mean orbital tracking | Did not achieve substantial orbit tracking; motion stayed near the upright equilibrium |
 | Direct orbit-tracking benchmark | No | Trajectory tracking | Tracks the prescribed orbit well once the zero-mean restriction is removed |
 
@@ -664,8 +663,8 @@ From the graph:
 
 - `PD cycle-energy` has the earliest final entry into the angle tube
 - `Lyapunov CLF` is slightly slower in tube-entry time, but its decay is smoother and more structured
-- `Harmonic` and `Averaged-energy` stabilize the pendulum as well, but with noticeably slower transients
-- all four plotted controllers achieve practical stabilization around the upright position
+- `Harmonic` also stabilizes the pendulum, but with a noticeably slower transient
+- all three plotted controllers achieve practical stabilization around the upright position
 
 The reason the PD controller converges faster is simple: it is less conservative. The PD cycle-energy controller reacts directly to the measured cycle energy and can change the carrier amplitude more aggressively. The Lyapunov controller, by contrast, is designed to enforce a desired averaged stiffness and preserve a clean Lyapunov structure, so it sacrifices some transient speed in exchange for a stronger analytical interpretation.
 
@@ -836,7 +835,7 @@ python src/main.py
 
 ## Current Controllers
 
-The simulator currently includes six controller modes:
+The simulator currently includes five controller modes discussed in this README:
 
 1. Harmonic controller:
 
@@ -856,17 +855,7 @@ $$
 A = 116.5 \text{ m/s}^2,\qquad \omega = 25.3 \text{ rad/s}
 $$
 
-2. Averaged-energy controller:
-
-This controller uses a high-frequency carrier with state-dependent amplitude:
-
-$$
-a(t) = \alpha(s)\cos(\omega t),
-$$
-
-where $\alpha(s)$ increases when the angular state moves farther from the upright equilibrium.
-
-3. Lyapunov controller:
+2. Lyapunov controller:
 
 This controller chooses the carrier amplitude from the desired stiffness law
 
@@ -876,7 +865,7 @@ $$
 
 In the current default implementation, `k_0 = 0.35` and `k_1 = 2.35`.
 
-4. Limit-cycle Lyapunov controller:
+3. Limit-cycle Lyapunov controller:
 
 This controller targets a nonzero periodic orbit around the upright equilibrium using a carrier with state-dependent amplitude:
 
@@ -886,7 +875,7 @@ $$
 
 Its objective is not point stabilization but orbital tracking toward a prescribed oscillation with target amplitude `A*` and frequency `w*`.
 
-5. PD position controller:
+4. PD position controller:
 
 This controller applies PD feedback to the angle magnitude and uses it to modulate the carrier amplitude:
 
@@ -896,7 +885,7 @@ $$
 
 It is the simplest feedback baseline in the project.
 
-6. PD cycle-energy controller:
+5. PD cycle-energy controller:
 
 This controller updates the amplitude once per carrier cycle using an energy proxy:
 
@@ -935,11 +924,10 @@ So this controller is Lyapunov-based on the exact vertical dynamics, rather than
 ## Pygame Controls
 
 - `1` selects the harmonic controller
-- `2` selects the averaged-energy controller
-- `3` selects the Lyapunov controller
-- `4` selects the limit-cycle Lyapunov controller
-- `5` selects the PD position controller
-- `6` selects the PD cycle-energy controller
+- `2` selects the Lyapunov controller
+- `3` selects the limit-cycle Lyapunov controller
+- `4` selects the PD position controller
+- `5` selects the PD cycle-energy controller
 - `Up` and `Down` increase or decrease the harmonic amplitude
 - `Left` and `Right` increase or decrease the harmonic frequency
 - `Z` and `C` select `kp` and `kd` for PD tuning
@@ -955,7 +943,6 @@ The repository contains standalone scripts that generate GIF animations for the 
 
 - `python generate_frequency_ramp_gif.py`
 - `python generate_harmonic_gif.py`
-- `python generate_averaged_energy_gif.py`
 - `python generate_lyapunov_gif.py`
 - `python generate_direct_lyapunov_gif.py`
 - `python generate_pid_position_gif.py`

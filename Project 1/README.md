@@ -415,9 +415,7 @@ For the averaged dynamics, a natural Lyapunov candidate is the total effective e
 $$
 \begin{aligned}
 V(\theta, \dot{\theta})
-&= \frac{1}{2}\dot{\theta}^2 \\
-&\quad + \frac{\alpha^2}{4 l^2 \omega^2}\sin^2\theta \\
-&\quad + \frac{g}{l}(\cos\theta - 1).
+&= \frac{1}{2}\dot{\theta}^2 + \frac{\alpha^2}{4 l^2 \omega^2}\sin^2\theta + \frac{g}{l}(\cos\theta - 1).
 \end{aligned}
 $$
 
@@ -432,8 +430,7 @@ Near the upright equilibrium, its quadratic approximation is
 $$
 \begin{aligned}
 V(\theta, \dot{\theta})
-&\approx \frac{1}{2}\dot{\theta}^2 \\
-&\quad + \frac{1}{2}\left(
+&\approx \frac{1}{2}\dot{\theta}^2 + \frac{1}{2}\left(
 \frac{\alpha^2}{2 l^2 \omega^2} - \frac{g}{l}
 \right)\theta^2.
 \end{aligned}
@@ -471,9 +468,7 @@ For this target dynamics, consider the polynomial Lyapunov function
 $$
 \begin{aligned}
 V_{\mathrm{cl}}(\theta, \dot{\theta})
-&= \frac{1}{2}\dot{\theta}^2 \\
-&\quad + \frac{1}{2}k_0 \theta^2 \\
-&\quad + \frac{1}{4}k_1 \theta^4.
+&= \frac{1}{2}\dot{\theta}^2 + \frac{1}{2}k_0 \theta^2 + \frac{1}{4}k_1 \theta^4.
 \end{aligned}
 $$
 
@@ -596,7 +591,11 @@ Consider
 $$
 \begin{aligned}
 V(s_2,s_4) &= \frac12 s_4^2+\frac12 k_0 s_2^2+\frac14 k_1 s_2^4, \\
-k_0 &> 0,\; k_1>0.
+\end{aligned}
+$$
+$$
+\begin{aligned}
+k_0 > 0 \; k_1 > 0.
 \end{aligned}
 $$
 
@@ -985,10 +984,12 @@ So this controller is Lyapunov-based on the exact vertical dynamics, rather than
 
 The repository contains standalone scripts that generate GIF animations for the main controller variants:
 
+- `python generate_frequency_ramp_gif.py`
 - `python generate_harmonic_gif.py`
 - `python generate_averaged_energy_gif.py`
 - `python generate_lyapunov_gif.py`
 - `python generate_direct_lyapunov_gif.py`
+- `python generate_pid_position_gif.py`
 - `python generate_pid_cycle_energy_gif.py`
 
 ## References

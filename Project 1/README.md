@@ -291,34 +291,15 @@ $$
 
 with effective potential
 
-$$
-\begin{aligned}
-U(\theta)
-&= \frac{\alpha^2}{4l^2\omega^2}\sin^2\theta \\
-&\quad + \frac{g}{l}(\cos\theta-1).
-\end{aligned}
-$$
+$$U(\theta)=\frac{\alpha^2}{4l^2\omega^2}\sin^2\theta+\frac{g}{l}(\cos\theta-1).$$
 
 Hence
 
-$$
-\begin{aligned}
-\ddot{\theta}
-&= -d\dot{\theta} \\
-&\quad - \frac{\alpha^2}{2l^2\omega^2}\sin\theta\cos\theta \\
-&\quad + \frac{g}{l}\sin\theta.
-\end{aligned}
-$$
+$$\ddot{\theta}=-d\dot{\theta}-\frac{\alpha^2}{2l^2\omega^2}\sin\theta\cos\theta+\frac{g}{l}\sin\theta.$$
 
 Near the upright equilibrium, $\sin\theta\approx\theta$ and $\cos\theta\approx1$, so
 
-$$
-\begin{aligned}
-\ddot{\theta}
-&\approx -d\dot{\theta} \\
-&\quad - \left(\frac{\alpha^2}{2l^2\omega^2}-\frac{g}{l}\right)\theta.
-\end{aligned}
-$$
+$$\ddot{\theta}\approx -d\dot{\theta}-\left(\frac{\alpha^2}{2l^2\omega^2}-\frac{g}{l}\right)\theta.$$
 
 Therefore the upright position is locally stabilized when
 
@@ -372,19 +353,11 @@ $$
 
 With the PD update
 
-$$
-\alpha_k=\alpha_\star + k_p e_k + k_d\frac{e_k-e_{k-1}}{T_c},
-$$
+$$\alpha_k=\alpha_\star+k_p e_k+k_d\frac{e_k-e_{k-1}}{T_c},$$
 
 the reduced error dynamics becomes
 
-$$
-\begin{aligned}
-e_{k+1}
-&= \left(a-bk_p-\frac{bk_d}{T_c}\right)e_k \\
-&\quad + \frac{bk_d}{T_c}e_{k-1}.
-\end{aligned}
-$$
+$$e_{k+1}=\left(a-bk_p-\frac{bk_d}{T_c}\right)e_k+\frac{bk_d}{T_c}e_{k-1}.$$
 
 Therefore, the cycle-energy error converges locally to zero whenever the roots of the associated characteristic polynomial lie inside the unit disk. In that regime, the cycle energy approaches its target value, which implies local convergence of the oscillation envelope toward the upright tube.
 
@@ -927,15 +900,7 @@ It is the simplest feedback baseline in the project.
 
 This controller updates the amplitude once per carrier cycle using an energy proxy:
 
-$$
-\begin{aligned}
-\alpha_{k+1}
-&= \alpha_0 \\
-&\quad + k_p E_{\mathrm{cycle},k} \\
-&\quad + k_d\frac{E_{\mathrm{cycle},k}-E_{\mathrm{cycle},k-1}}{T_c}, \\
-a(t) &= \alpha(t)\cos(\omega t).
-\end{aligned}
-$$
+$$\alpha_{k+1}=\alpha_0+k_p E_{\mathrm{cycle},k}+k_d\frac{E_{\mathrm{cycle},k}-E_{\mathrm{cycle},k-1}}{T_c},\qquad a(t)=\alpha(t)\cos(\omega t).$$
 
 It is less instantaneous than PD-on-angle and acts on cycle-averaged behavior.
 

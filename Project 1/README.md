@@ -38,7 +38,7 @@ In this project, the pendulum state is defined as
 
 $$
 \begin{aligned}
-s &= \begin{bmatrix} s_1 \\ s_2 \\ s_3 \\ s_4 \end{bmatrix} \\
+s &= \begin{bmatrix} s_1 \\ s_2 \\ s_3 \\ s_4 \end{bmatrix}
   &= \begin{bmatrix} h \\ \theta \\ \dot h \\ \dot\theta \end{bmatrix}.
 \end{aligned}
 $$
@@ -68,7 +68,7 @@ as the control input. If the pivot motion is harmonic,
 
 $$
 \begin{aligned}
-h(t) &= H\cos(\omega t), \\
+h(t) &= H\cos(\omega t),
 \ddot h(t) &= -H\omega^2\cos(\omega t).
 \end{aligned}
 $$
@@ -121,7 +121,7 @@ Hence, the squared speed is
 
 $$
 \begin{aligned}
-v^2 &= \dot{x}^2 + \dot{z}^2 \\
+v^2 &= \dot{x}^2 + \dot{z}^2
     &= l^2 \dot{\theta}^2 + \dot{h}^2 - 2 l \dot{h} \dot{\theta} \sin \theta.
 \end{aligned}
 $$

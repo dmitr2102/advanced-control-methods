@@ -2,12 +2,16 @@
 
 This project studies stabilization of the Kapitza pendulum using Lyapunov-based methods.
 
-[![Direct orbit tracking title animation](animations/direct_orbit_tracking_outside_clean.gif)](animations/direct_orbit_tracking_outside_clean.gif)
+<a href="animations/direct_orbit_tracking_outside_clean.gif">
+  <img src="animations/direct_orbit_tracking_outside_clean.gif" width="50%" alt="Direct orbit tracking title animation">
+</a>
 
 ## Problem Definition
 
 The main goal of the project is to study how a Kapitza pendulum can be stabilized and controlled through vertical oscillations of the suspension point with Lyapunov-based design.
-[![Direct orbit tracking title animation](figures/Kapitza_pendulum.svg.png)](figures/Kapitza_pendulum.svg.png)
+<a href="figures/Kapitza_pendulum.svg.png">
+  <img src="figures/Kapitza_pendulum.svg.png" width="50%" alt="Direct orbit tracking title animation">
+</a>
 
 ## Main Results
 

@@ -22,7 +22,7 @@ The main goal of the project is to study how a Kapitza pendulum can be stabilize
 | Harmonic controller | Yes | Upright stabilization | Stabilizes the upright equilibrium, but with slower transients than feedback-based methods |
 | Averaged-energy controller | Yes | Upright stabilization | Works reliably in the averaged regime, but remains slower than the best tuned feedback laws |
 | PD cycle-energy controller | Yes | Upright stabilization | Fastest practical settling among the tuned physically admissible controllers |
-| Lyapunov CLF controller | Yes | Upright stabilization | Cleanest analytical stability interpretation and strongest local decay behavior |
+| CLF controller | Yes | Upright stabilization | Cleanest analytical stability interpretation and strongest local decay behavior |
 | Adaptive limit-cycle Lyapunov controller | Yes | Zero-mean orbital tracking | Did not achieve substantial orbit tracking; motion stayed near the upright equilibrium |
 | Direct orbit-tracking benchmark | No | Trajectory tracking | Tracks the prescribed orbit well once the zero-mean restriction is removed |
 

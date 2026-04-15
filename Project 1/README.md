@@ -323,6 +323,9 @@ All animations are drawn in the suspension-point frame to avoid visual vertical 
 
 
 
+
+
+
 [![Harmonic stabilization tuned](animations/harmonic_stabilization_tuned.gif)](animations/harmonic_stabilization_tuned.gif)
 
 

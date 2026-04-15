@@ -391,9 +391,7 @@ $$
 
 Controller law:
 
-$$
-\alpha_k=\alpha_\star + k_p e_k + k_d\frac{e_k-e_{k-1}}{T_c}
-$$
+`\alpha_k=\alpha_\star + k_p e_k + k_d\frac{e_k-e_{k-1}}{T_c}`
 [![PD cycle-energy tuned](animations/pid_cycle_energy_stabilization_tuned.gif)](animations/pid_cycle_energy_stabilization_tuned.gif)
 
 
@@ -637,9 +635,7 @@ $$
 
 Control law:
 
-$$
-\alpha(\theta) = \sqrt{2l^2\omega^2 \left( \frac{g}{l}+k_0+k_1\theta^2 \right)}.
-$$
+`\alpha(\theta) = \sqrt{2l^2\omega^2 \left( \frac{g}{l}+k_0+k_1\theta^2 \right)}`
 [![Lyapunov stabilization tuned](animations/lyapunov_stabilization_tuned.gif)](animations/lyapunov_stabilization_tuned.gif)
 
 #### Direct Lyapunov stabilization
@@ -738,9 +734,7 @@ $$
 
 with carrier parameters chosen so that the averaged dynamics approximates
 
-$$
-\ddot\theta = \ddot\theta_{\mathrm{ref}} - k_d e_2 - k_p e_1 - k_E(E-E_\star)\dot\theta
-$$
+`\ddot\theta = \ddot\theta_{\mathrm{ref}} - k_d e_2 - k_p e_1 - k_E(E-E_\star)\dot\theta`
 [![Adaptive limit-cycle tracking](animations/adaptive_limit_cycle_lyapunov_tracking.gif)](animations/adaptive_limit_cycle_lyapunov_tracking.gif)
 [![Adaptive limit-cycle phase portrait](figures/adaptive_limit_cycle_phase_portrait_30s.png)](figures/adaptive_limit_cycle_phase_portrait_30s.png)
 

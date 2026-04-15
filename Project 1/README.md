@@ -334,7 +334,7 @@ $$
 Controller law:
 
 $$
-\text{harmonic:}\qquad a(t)=A\cos(\omega t),
+\text{harmonic:}\qquad a(t)=A\cos(\omega t)
 $$
 
 All animations are drawn in the suspension-point frame to avoid visual vertical jittering.
@@ -392,7 +392,7 @@ $$
 Controller law:
 
 $$
-\text{PD on cycle energy:}\qquad \alpha_k=\alpha_\star + k_p e_k + k_d\frac{e_k-e_{k-1}}{T_c}.
+\alpha_k=\alpha_\star + k_p e_k + k_d\frac{e_k-e_{k-1}}{T_c}
 $$
 [![PD cycle-energy tuned](animations/pid_cycle_energy_stabilization_tuned.gif)](animations/pid_cycle_energy_stabilization_tuned.gif)
 
@@ -457,7 +457,7 @@ Therefore, under the Kapitza stabilization condition and in the presence of damp
 For controller design, we do not need to stay with the open-loop averaged Kapitza energy only. Instead, we specify a desired local closed-loop averaged dynamics around the upright equilibrium:
 
 $$
-\ddot{\theta} + d\dot{\theta} + (k_0 + k_1 \theta^2)\theta = 0,
+\ddot{\theta} + d\dot{\theta} + (k_0 + k_1 \theta^2)\theta = 0
 $$
 
 where
@@ -506,7 +506,7 @@ Therefore, `V_cl` is a valid local Lyapunov function for the chosen target close
 Near the upright equilibrium, the averaged Kapitza dynamics is approximated by
 
 $$
-\ddot{\theta} + d\dot{\theta} + k_{\mathrm{eff}}(\alpha)\theta \approx 0,
+\ddot{\theta} + d\dot{\theta} + k_{\mathrm{eff}}(\alpha)\theta \approx 0
 $$
 
 with
@@ -552,7 +552,7 @@ $$
 is the effective stiffness of the averaged Kapitza pendulum near the upright equilibrium. After averaging and linearization, the dynamics becomes
 
 $$
-\ddot{\theta}+d\dot{\theta}+k_{\mathrm{eff}}\theta=0,
+\ddot{\theta}+d\dot{\theta}+k_{\mathrm{eff}}\theta=0
 $$
 
 so $k_{\mathrm{eff}}$ plays the role of the restoring coefficient: the vibration term $\alpha^2/(2l^2\omega^2)$ competes with the destabilizing gravity term $g/l$. Therefore, $k_{\mathrm{eff}}>0$ means local upright stabilization in the averaged model, which is equivalent to the Kapitza threshold
@@ -618,7 +618,7 @@ For the original fast system, this gives local practical asymptotic stability th
 Control input used at this stage:
 
 $$
-\text{averaged Lyapunov:}\qquad a(t)=\alpha(\theta)\cos(\omega t),
+a(t)=\alpha(\theta)\cos(\omega t)
 $$
 
 Controller law used at this stage:
@@ -660,7 +660,7 @@ $$
 gives
 
 $$
-\dot V_{\mathrm{dir}}=-(d+k_c\sin^2\theta)\dot\theta^2 \le 0,
+\dot V_{\mathrm{dir}}=-(d+k_c\sin^2\theta)\dot\theta^2 \le 0
 $$
 
 so the control injects a restoring term through `k_p` and adds state-dependent damping through `k_c`.
@@ -727,10 +727,7 @@ is the target energy corresponding to the desired orbit. The gain $k_d$ damps th
 Control input:
 
 $$
-\begin{aligned}
-a(t) &= \alpha(s,t)\cos(\psi(t)), \\
-\dot\psi &= \omega(s,t).
-\end{aligned}
+a(t)=\alpha(s,t)\cos(\psi(t)),\qquad \dot\psi=\omega(s,t)
 $$
 
 Controller idea used at this stage:
@@ -742,13 +739,7 @@ $$
 with carrier parameters chosen so that the averaged dynamics approximates
 
 $$
-\begin{aligned}
-\ddot\theta
-&= \ddot\theta_{\mathrm{ref}} \\
-&\quad - k_d e_2 \\
-&\quad - k_p e_1 \\
-&\quad - k_E(E-E_\star)\dot\theta.
-\end{aligned}
+\ddot\theta = \ddot\theta_{\mathrm{ref}} - k_d e_2 - k_p e_1 - k_E(E-E_\star)\dot\theta
 $$
 [![Adaptive limit-cycle tracking](animations/adaptive_limit_cycle_lyapunov_tracking.gif)](animations/adaptive_limit_cycle_lyapunov_tracking.gif)
 [![Adaptive limit-cycle phase portrait](figures/adaptive_limit_cycle_phase_portrait_30s.png)](figures/adaptive_limit_cycle_phase_portrait_30s.png)
@@ -782,10 +773,7 @@ $$
 with the corresponding reference velocity and acceleration
 
 $$
-\begin{aligned}
-\dot\theta_{\mathrm{ref}}(t) &= A_\star\omega_\star\cos(\omega_\star t), \\
-\ddot\theta_{\mathrm{ref}}(t) &= -\omega_\star^2\theta_{\mathrm{ref}}(t).
-\end{aligned}
+\dot\theta_{\mathrm{ref}}(t)=A_\star\omega_\star\cos(\omega_\star t),\qquad \ddot\theta_{\mathrm{ref}}(t)=-\omega_\star^2\theta_{\mathrm{ref}}(t)
 $$
 
 The tracking errors are defined as
@@ -800,21 +788,13 @@ $$
 Besides pointwise tracking, we also shape the orbit in phase space through the orbital radius
 
 $$
-\begin{aligned}
-r &= \sqrt{\theta^2+\left(\frac{\dot\theta}{\omega_\star}\right)^2}, \\
-r_\star &= A_\star.
-\end{aligned}
+r=\sqrt{\theta^2+\left(\frac{\dot\theta}{\omega_\star}\right)^2},\qquad r_\star=A_\star
 $$
 
 This gives a benchmark Lyapunov candidate
 
 $$
-\begin{aligned}
-V_{\mathrm{trk}}
-&= \frac12 e_2^2 \\
-&\quad + \frac12\omega_\star^2 e_1^2 \\
-&\quad + \frac12 k_o(r-r_\star)^2.
-\end{aligned}
+V_{\mathrm{trk}}=\frac12 e_2^2+\frac12\omega_\star^2 e_1^2+\frac12 k_o(r-r_\star)^2
 $$
 
 which combines velocity error, position error, and radial orbit error. The first two terms enforce tracking of the sinusoidal reference, while the last term pulls the trajectory back to the target closed curve in the phase plane.
@@ -822,17 +802,7 @@ which combines velocity error, position error, and radial orbit error. The first
 and the direct feedback law is
 
 $$
-\begin{aligned}
-\text{direct orbit tracking:}\qquad
-a
-&= l\,\frac{
-\ddot\theta_{\mathrm{ref}}
--k_d e_2
--k_p e_1
--k_o(r-r_\star)\dot\theta
-+d\dot\theta
-}{\sin_\varepsilon\theta} - g.
-\end{aligned}
+a = l\,\frac{\ddot\theta_{\mathrm{ref}}-k_d e_2-k_p e_1-k_o(r-r_\star)\dot\theta+d\dot\theta}{\sin_\varepsilon\theta} - g
 $$
 
 where $k_p$ and $k_d$ are the usual position and rate gains, and $k_o$ controls attraction to the target orbit radius. The regularized denominator $\sin_\varepsilon\theta$ is used instead of $\sin\theta$ near zero to avoid singular behavior in the inversion of the nonlinear pendulum dynamics.
@@ -898,19 +868,13 @@ $$
 with interactive amplitude `A` and frequency $\omega$. For the default parameters, the averaged stabilization threshold is
 
 $$
-\begin{aligned}
-A &> \sqrt{2 g l}\,\omega \approx 112.1 \text{ m/s}^2 \\
-&\quad \text{for}\quad \omega = 25.3 \text{ rad/s}.
-\end{aligned}
+A > \sqrt{2 g l}\,\omega \approx 112.1 \text{ m/s}^2,\qquad \omega = 25.3 \text{ rad/s}
 $$
 
 The default choice is
 
 $$
-\begin{aligned}
-A &= 116.5 \text{ m/s}^2, \\
-\omega &= 25.3 \text{ rad/s}.
-\end{aligned}
+A = 116.5 \text{ m/s}^2,\qquad \omega = 25.3 \text{ rad/s}
 $$
 
 2. Averaged-energy controller:
@@ -928,10 +892,7 @@ where $\alpha(s)$ increases when the angular state moves farther from the uprigh
 This controller chooses the carrier amplitude from the desired stiffness law
 
 $$
-\begin{aligned}
-a(t) &= \alpha(\theta)\cos(\omega t), \\
-k_{\mathrm{des}}(\theta) &= k_0 + k_1 \theta^2.
-\end{aligned}
+a(t)=\alpha(\theta)\cos(\omega t),\qquad k_{\mathrm{des}}(\theta)=k_0+k_1\theta^2
 $$
 
 In the current default implementation, `k_0 = 0.35` and `k_1 = 2.35`.
@@ -941,10 +902,7 @@ In the current default implementation, `k_0 = 0.35` and `k_1 = 2.35`.
 This controller targets a nonzero periodic orbit around the upright equilibrium using a carrier with state-dependent amplitude:
 
 $$
-\begin{aligned}
-a(t) &= \alpha(t)\cos(\psi(t)), \\
-\dot\psi &= \omega_c.
-\end{aligned}
+a(t)=\alpha(t)\cos(\psi(t)),\qquad \dot\psi=\omega_c
 $$
 
 Its objective is not point stabilization but orbital tracking toward a prescribed oscillation with target amplitude `A*` and frequency `w*`.
@@ -954,10 +912,7 @@ Its objective is not point stabilization but orbital tracking toward a prescribe
 This controller applies PD feedback to the angle magnitude and uses it to modulate the carrier amplitude:
 
 $$
-\begin{aligned}
-\alpha(t) &= \alpha_0 + k_p|\theta(t)| + k_d\frac{d}{dt}|\theta(t)|, \\
-a(t) &= \alpha(t)\cos(\omega t).
-\end{aligned}
+\alpha(t)=\alpha_0 + k_p|\theta(t)| + k_d\frac{d}{dt}|\theta(t)|,\qquad a(t)=\alpha(t)\cos(\omega t)
 $$
 
 It is the simplest feedback baseline in the project.
@@ -983,11 +938,7 @@ It is less instantaneous than PD-on-angle and acts on cycle-averaged behavior.
 For completeness, the repository also includes a direct Lyapunov benchmark controller that acts on the exact nonlinear model without averaging:
 
 $$
-\begin{aligned}
-V_{\mathrm{dir}}(\theta,\dot{\theta})
-&= \frac{1}{2}\dot{\theta}^2 \\
-&\quad + k_p (1-\cos\theta).
-\end{aligned}
+V_{\mathrm{dir}}(\theta,\dot{\theta})=\frac{1}{2}\dot{\theta}^2 + k_p (1-\cos\theta)
 $$
 
 For the exact plant

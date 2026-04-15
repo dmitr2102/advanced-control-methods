@@ -985,12 +985,10 @@ So this controller is Lyapunov-based on the exact vertical dynamics, rather than
 
 The repository contains standalone scripts that generate GIF animations for the main controller variants:
 
-- `python generate_frequency_ramp_gif.py`
 - `python generate_harmonic_gif.py`
 - `python generate_averaged_energy_gif.py`
 - `python generate_lyapunov_gif.py`
 - `python generate_direct_lyapunov_gif.py`
-- `python generate_pid_position_gif.py`
 - `python generate_pid_cycle_energy_gif.py`
 
 ## References

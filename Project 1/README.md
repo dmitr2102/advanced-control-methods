@@ -303,7 +303,7 @@ $$\ddot{\theta}\approx -d\dot{\theta}-\left(\frac{\alpha^2}{2l^2\omega^2}-\frac{
 Therefore the upright position is locally stabilized when
 
 $$
-\alpha^2 > 2gl\,\omega^2.
+\alpha^2 > 2gl\omega^2.
 $$
 
 Control input:

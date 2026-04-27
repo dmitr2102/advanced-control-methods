@@ -46,7 +46,7 @@ m(t)\dot{\bm v}
 \]
 where
 \[
-C=\operatorname{diag}(c_x,c_z),
+C=\mathrm{diag}(c_x,c_z),
 \qquad
 \bm \xi_z=
 \begin{bmatrix}
@@ -76,7 +76,7 @@ Use the filtered tracking error
 \[
 \bm e=\bm v+\Lambda\bm r,
 \qquad
-\Lambda=\operatorname{diag}(\lambda_x,\lambda_z)>0.
+\Lambda=\mathrm{diag}(\lambda_x,\lambda_z)>0.
 \]
 If $\bm e\to0$, then
 \[
@@ -108,7 +108,7 @@ C\bm v-m_0g\bm\xi_z
 \]
 where
 \[
-K=\operatorname{diag}(k_x,k_z)>0.
+K=\mathrm{diag}(k_x,k_z)>0.
 \]
 
 The estimate is projected to a physically meaningful inverse-mass interval:
@@ -235,7 +235,7 @@ The simulation uses the projected update
 \[
 \hat\theta_{k+1}
 =
-\operatorname{proj}_{[\theta_{\min},\theta_{\max}]}
+\mathrm{proj}_{[\theta_{\min},\theta_{\max}]}
 \left(
 \hat\theta_k
 +
@@ -248,7 +248,7 @@ The reported adaptive mass estimate and saturated command are
 \qquad
 \bm u_k
 =
-\operatorname{sat}_{[-u_{\max},u_{\max}]}
+\mathrm{sat}_{[-u_{\max},u_{\max}]}
 \left\{
 \bm u(\bm s_k,\hat\theta_k)
 \right\}.

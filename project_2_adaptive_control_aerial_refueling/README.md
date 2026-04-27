@@ -1,4 +1,4 @@
-# Adaptive Control for Aerial Refueling Station Keeping
+﻿# Adaptive Control for Aerial Refueling Station Keeping
 
 This project studies an adaptive controller for a simplified aerial refueling
 task. The receiver aircraft must stay close to a fixed refueling point in the
@@ -32,22 +32,28 @@ The project is organized as follows:
 
 We consider the receiver aircraft in the vertical longitudinal plane. The
 coordinate frame is attached to the tanker and moves with its nominal refueling
-flight condition. The desired refueling point is fixed at the origin of this
-relative frame.
+flight condition. The tanker-side refueling point is fixed at the origin of
+this relative frame, so the absolute motion of the tanker is not modeled
+explicitly.
 
-More precisely, the origin is placed at the center of the desired tanker-side
-refueling contact region, for example the center of the drogue/basket. The
-controlled point on the receiver is the receiver-side refueling point, such as
-the probe tip. In this reduced model, the aircraft attitude and the fixed
-geometric offset between the aircraft center of mass and the probe tip are
-handled by lower-level loops, so the high-level station-keeping state describes
-the receiver-side refueling point directly.
+The receiver starts from a large initial relative offset in this tanker-attached
+frame. The objective is to drive the receiver-side refueling point to the
+tanker-side refueling point and then keep it inside the refueling zone
+$\|r(t)\|\le R$. Thus, the radius $R=1$ m is a target zone after entry, not a
+constraint that must already be satisfied at the initial time.
 
-The open-loop behavior of the model is checked with a Zero controller, which
-applies no corrective force and shows how the receiver drifts under the
-mass-induced gravity mismatch. A nominal-mass PD controller is also considered
-as the simplest feedback baseline, so the adaptive controller can be compared
-with a standard non-adaptive regulation method.
+The increasing receiver mass is treated as a prescribed time-varying
+uncertainty in the refueling-mode model. The contact/capture switching logic
+that would turn fuel flow on only after physical engagement is not modeled in
+this version. In the animations, the tanker is kept fixed and the refueling
+hose/drogue is drawn as connected to the receiver to emphasize that the
+simulation studies relative recovery and stabilization under changing mass.
+
+In this reduced model, the aircraft attitude and the fixed geometric offset
+between the aircraft center of mass and the probe tip are handled by lower-level
+loops, so the high-level state describes the receiver-side refueling point
+directly.
+
 
 <a href="figures/refueling_model_forces.png">
   <img src="figures/refueling_model_forces.png" width="100%" alt="Aerial refueling model with coordinates, control forces, damping, and gravity mismatch">
@@ -73,7 +79,7 @@ with a standard non-adaptive regulation method.
 | $\theta(t)=1/m(t)$ | True inverse mass. |
 | $\hat\theta(t)$ | Adaptive estimate of inverse mass. |
 | $\hat m(t)=1/\hat\theta(t)$ | Reported adaptive mass estimate. |
-| $C=\operatorname{diag}(c_x,c_z)$ | Linearized damping matrix. |
+| $C=\mathrm{diag}(c_x,c_z)$ | Linearized damping matrix. |
 | $\xi_z=[0,1]^T$ | Vertical unit vector. |
 | $R$ | Refueling-zone radius. |
 | $e=v+\Lambda r$ | Filtered tracking error used by the adaptive controller. |
@@ -82,20 +88,17 @@ with a standard non-adaptive regulation method.
 
 The control objective is
 
-$$
+```math
 x(t)\to 0,\qquad z(t)\to 0,\qquad v_x(t)\to 0,\qquad v_z(t)\to 0,
-$$
+```
 
 while the receiver mass changes due to fuel inflow.
 
 The state is
 
-$$
-s =
-\begin{bmatrix}
-x \\ z \\ v_x \\ v_z
-\end{bmatrix},
-$$
+```math
+s = \begin{bmatrix} x \\ z \\ v_x \\ v_z \end{bmatrix},
+```
 
 where
 
@@ -108,32 +111,24 @@ where
 
 We also use the compact notation
 
-$$
-r =
-\begin{bmatrix}
-x \\ z
-\end{bmatrix},
-\qquad
-v =
-\begin{bmatrix}
-v_x \\ v_z
-\end{bmatrix}.
-$$
+```math
+r = \begin{bmatrix} x \\ z \end{bmatrix}, \qquad v = \begin{bmatrix} v_x \\ v_z \end{bmatrix}.
+```
 
 The refueling zone is represented by a circle
 
-$$
+```math
 \|r(t)\| = \sqrt{x(t)^2+z(t)^2}\le R.
-$$
+```
 
 In this first version, the circle is used as a performance metric, not as a hard
 safety constraint.
 
 The default radius is set to
 
-$$
+```math
 R=1\ \mathrm{m}.
-$$
+```
 
 This value is chosen as a realistic order-of-magnitude refueling window: the
 diameter of the refueling basket or drogue used by tanker aircraft is about one
@@ -169,12 +164,9 @@ The assumptions are:
 
 The commanded control input is
 
-$$
-u =
-\begin{bmatrix}
-u_T \\ u_L
-\end{bmatrix},
-$$
+```math
+u = \begin{bmatrix} u_T \\ u_L \end{bmatrix},
+```
 
 where
 
@@ -188,13 +180,13 @@ force corrections around the nominal trimmed flight regime.
 
 A simple longitudinal-vertical force model may be written as
 
-$$
+```math
 m(t)\dot v_x = T - D_x,
-$$
+```
 
-$$
+```math
 m(t)\dot v_z = L - m(t)g - D_z,
-$$
+```
 
 where
 
@@ -206,31 +198,25 @@ where
 
 In nominal trimmed flight before refueling, the aircraft is assumed to satisfy
 
-$$
-T_0 = D_{x,0},
-\qquad
-L_0 = m_0 g,
-$$
+```math
+T_0 = D_{x,0}, \qquad L_0 = m_0 g,
+```
 
 where $m_0$ is the initial mass. This means that the nominal thrust balances
 drag and the nominal lift balances weight.
 
 During refueling, we write
 
-$$
-T = T_0 + u_T,
-\qquad
-L = L_0 + u_L.
-$$
+```math
+T = T_0 + u_T, \qquad L = L_0 + u_L.
+```
 
 For small relative velocities around the nominal flight condition, the drag and
 damping corrections are approximated by a linear model:
 
-$$
-D_x-D_{x,0}\approx c_x v_x,
-\qquad
-D_z\approx c_z v_z,
-$$
+```math
+D_x-D_{x,0}\approx c_x v_x, \qquad D_z\approx c_z v_z,
+```
 
 where $c_x>0$ and $c_z>0$ are linearized damping coefficients. This is not a
 claim that aerodynamic drag is globally linear. It is a local first-order model
@@ -238,13 +224,13 @@ around the refueling flight condition.
 
 Substituting these relations into the force balance gives
 
-$$
+```math
 m(t)\dot v_x = u_T - c_x v_x,
-$$
+```
 
-$$
+```math
 m(t)\dot v_z = u_L - c_z v_z - (m(t)-m_0)g.
-$$
+```
 
 Thus the increasing mass has two effects:
 
@@ -256,64 +242,55 @@ Thus the increasing mass has two effects:
 
 Define
 
-$$
-C =
-\begin{bmatrix}
-c_x & 0 \\
-0 & c_z
-\end{bmatrix},
-\qquad
-\xi_z =
-\begin{bmatrix}
-0 \\ 1
-\end{bmatrix}.
-$$
+```math
+C = \begin{bmatrix} c_x & 0 \\ 0 & c_z \end{bmatrix}, \qquad \xi_z = \begin{bmatrix} 0 \\ 1 \end{bmatrix}.
+```
 
 The model is
 
-$$
+```math
 \dot r = v,
-$$
+```
 
-$$
+```math
 m(t)\dot v = u - Cv - (m(t)-m_0)g \xi_z.
-$$
+```
 
 Equivalently,
 
-$$
+```math
 \dot v = \theta(t)u - \theta(t)Cv - \bigl(1-m_0\theta(t)\bigr)g \xi_z,
-$$
+```
 
 where the inverse mass is
 
-$$
+```math
 \theta(t)=\frac{1}{m(t)}.
-$$
+```
 
 In component form:
 
-$$
+```math
 \dot x = v_x,
-$$
+```
 
-$$
+```math
 \dot z = v_z,
-$$
+```
 
-$$
+```math
 \dot v_x = \theta(t)(u_T-c_xv_x),
-$$
+```
 
-$$
+```math
 \dot v_z = \theta(t)(u_L-c_zv_z) - \bigl(1-m_0\theta(t)\bigr)g.
-$$
+```
 
 The fuel inflow changes the true mass according to
 
-$$
+```math
 m(t)=m_0+\int_0^t q(\tau)d\tau,
-$$
+```
 
 where $q(t)$ is the fuel mass flow rate. The controller may know a nominal fuel
 flow profile, but it does not know the exact true mass online.
@@ -331,13 +308,13 @@ damping, and the vertical gravity mismatch caused by increasing mass.
 
 Substituting $u=0$ into the plant gives
 
-$$
+```math
 \dot r = v,
-$$
+```
 
-$$
+```math
 \dot v = -\theta(t)Cv-\bigl(1-m_0\theta(t)\bigr)g\xi_z.
-$$
+```
 
 The horizontal velocity is damped by $-\theta(t)c_xv_x$, but there is no term
 that drives $x$ to zero. In the vertical channel, the term
@@ -349,10 +326,14 @@ Algorithmically, the Zero controller is just:
 ```text
 given state s = [x, z, vx, vz]^T
 
-u_T < 0
-u_L < 0
+u_T = 0
+u_L = 0
 return u = [u_T, u_L]^T
 ```
+
+<a href="figures/zero_controller_approach_animation.gif">
+  <img src="figures/zero_controller_approach_animation.gif" width="100%" alt="Zero controller animated relative stabilization with connected refueling hose">
+</a>
 
 <a href="figures/zero_controller_tracking_summary.png">
   <img src="figures/zero_controller_tracking_summary.png" width="100%" alt="Zero controller tracking summary">
@@ -403,27 +384,24 @@ Final Zero-controller result:
 The nominal-mass PD controller uses position and velocity feedback but does
 not adapt the mass estimate. It assumes the nominal mass $m_0$ and commands
 
-$$
+```math
 a_{\mathrm{PD}} = -K_p r - K_d v,
-$$
+```
 
 where $a_{\mathrm{PD}}\in\mathbb{R}^2$ is the desired acceleration,
-$K_p=\operatorname{diag}(k_{p,x},k_{p,z})$ is the proportional gain matrix, and
-$K_d=\operatorname{diag}(k_{d,x},k_{d,z})$ is the derivative gain matrix. The
+$K_p=\mathrm{diag}(k_{p,x},k_{p,z})$ is the proportional gain matrix, and
+$K_d=\mathrm{diag}(k_{d,x},k_{d,z})$ is the derivative gain matrix. The
 implemented force command is
 
-$$
+```math
 u_{\mathrm{PD}} = Cv + m_0 a_{\mathrm{PD}}.
-$$
+```
 
 Substituting this law into the true plant gives
 
-$$
-\dot v
-=
-\theta(t)m_0(-K_pr-K_dv)
--\bigl(1-m_0\theta(t)\bigr)g\xi_z.
-$$
+```math
+\dot v = \theta(t)m_0(-K_pr-K_dv) -\bigl(1-m_0\theta(t)\bigr)g\xi_z.
+```
 
 If $m(t)=m_0$, then $\theta(t)m_0=1$ and the main feedback term becomes the
 standard second-order PD dynamics. During refueling $m(t)>m_0$, therefore
@@ -448,13 +426,17 @@ The implemented PD algorithm is:
 ```text
 given state s = [x, z, vx, vz]^T
 
-r < [x, z]^T
-v < [vx, vz]^T
-a_PD < -Kp r - Kd v
-u < C v + m0 a_PD
-u < saturate(u, -u_max, u_max)
+r = [x, z]^T
+v = [vx, vz]^T
+a_PD = -Kp r - Kd v
+u = C v + m0 a_PD
+u = saturate(u, -u_max, u_max)
 return u
 ```
+
+<a href="figures/pd_controller_approach_animation.gif">
+  <img src="figures/pd_controller_approach_animation.gif" width="100%" alt="PD controller animated relative stabilization with connected refueling hose">
+</a>
 
 <a href="figures/pd_controller_tracking_summary.png">
   <img src="figures/pd_controller_tracking_summary.png" width="100%" alt="PD controller tracking summary">
@@ -497,84 +479,59 @@ Final PD-controller result:
 
 The adaptive controller estimates the inverse mass
 
-$$
+```math
 \theta(t)=\frac{1}{m(t)}
-$$
+```
 
 online and uses the estimate $\hat\theta(t)$ in the force command. The compact
 adaptive-control form of the plant is
 
-$$
-\dot v = \theta \phi(s,u) - g \xi_z,
-\qquad
-\phi(s,u)=u-Cv+m_0g\xi_z,
-$$
+```math
+\dot v = \theta \phi(s,u) - g \xi_z, \qquad \phi(s,u)=u-Cv+m_0g\xi_z,
+```
 
 where $\phi(s,u)$ is the regressor-like force term multiplying the unknown
 inverse mass.
 
 The filtered tracking error is
 
-$$
+```math
 e=v+\Lambda r,
-$$
+```
 
-where $\Lambda=\operatorname{diag}(\lambda_x,\lambda_z)$ is positive definite.
+where $\Lambda=\mathrm{diag}(\lambda_x,\lambda_z)$ is positive definite.
 If $e\to 0$, then $\dot r=-\Lambda r$, so the receiver-side refueling point
 converges to the origin.
 
 The certainty-equivalent adaptive force command is
 
-$$
-u
-=
-Cv-m_0g \xi_z
-+
-\frac{1}{\hat\theta}
-\left(
--K e-\Lambda v+g \xi_z
-\right),
-$$
+```math
+u = Cv-m_0g \xi_z + \frac{1}{\hat\theta} \left( -K e-\Lambda v+g \xi_z \right),
+```
 
-where $K=\operatorname{diag}(k_x,k_z)$ is positive definite. The estimate is
+where $K=\mathrm{diag}(k_x,k_z)$ is positive definite. The estimate is
 updated by
 
-$$
-\dot{\hat\theta}
-=
-\gamma e^T\phi(s,u),
-$$
+```math
+\dot{\hat\theta} = \gamma e^T\phi(s,u),
+```
 
 with projection onto the admissible interval
 $[\theta_{\min},\theta_{\max}]$. The plotted adaptive mass estimate is
 
-$$
+```math
 \hat m(t)=\frac{1}{\hat\theta(t)}.
-$$
+```
 
 In component form:
 
-$$
-u_T
-=
-c_xv_x
-+
-\frac{1}{\hat\theta}
-\left(
--k_x e_x-\lambda_x v_x
-\right),
-$$
+```math
+u_T = c_xv_x + \frac{1}{\hat\theta} \left( -k_x e_x-\lambda_x v_x \right),
+```
 
-$$
-u_L
-=
-c_zv_z-m_0g
-+
-\frac{1}{\hat\theta}
-\left(
--k_z e_z-\lambda_z v_z+g
-\right).
-$$
+```math
+u_L = c_zv_z-m_0g + \frac{1}{\hat\theta} \left( -k_z e_z-\lambda_z v_z+g \right).
+```
 
 Here $e_x$ and $e_z$ denote the two components of the filtered error $e$. The
 vertical unit vector is denoted by $\xi_z$ and will be named `vertical_unit` in
@@ -582,23 +539,17 @@ the code.
 
 The stability argument uses
 
-$$
-L(e,\tilde\theta)
-=
-\frac{1}{2}e^Te
-+
-\frac{1}{2\gamma}\tilde\theta^2,
-\qquad
-\tilde\theta=\theta-\hat\theta.
-$$
+```math
+L(e,\tilde\theta) = \frac{1}{2}e^Te + \frac{1}{2\gamma}\tilde\theta^2, \qquad \tilde\theta=\theta-\hat\theta.
+```
 
 For constant unknown mass, the closed-loop error dynamics become
 $\dot e=-Ke+\tilde\theta\phi$, and the adaptation law cancels the parameter
 cross-term, giving
 
-$$
+```math
 \dot L=-e^TKe\le 0.
-$$
+```
 
 Thus the augmented error system is Lyapunov stable, and the filtered tracking
 error converges under the standard boundedness assumptions used in direct
@@ -629,17 +580,21 @@ The implemented adaptive algorithm is:
 ```text
 given state s = [x, z, vx, vz]^T and current estimate theta_hat
 
-r < [x, z]^T
-v < [vx, vz]^T
-e < v + Lambda r
-desired < -K e - Lambda v + g xi_z
-u < C v - m0 g xi_z + desired / theta_hat
-u < saturate(u, -u_max, u_max)
-phi < u - C v + m0 g xi_z
-theta_hat_dot < gamma e^T phi
-theta_hat < project(theta_hat + dt theta_hat_dot, theta_min, theta_max)
+r = [x, z]^T
+v = [vx, vz]^T
+e = v + Lambda r
+desired = -K e - Lambda v + g xi_z
+u = C v - m0 g xi_z + desired / theta_hat
+u = saturate(u, -u_max, u_max)
+phi = u - C v + m0 g xi_z
+theta_hat_dot = gamma e^T phi
+theta_hat = project(theta_hat + dt theta_hat_dot, theta_min, theta_max)
 return u
 ```
+
+<a href="figures/adaptive_controller_approach_animation.gif">
+  <img src="figures/adaptive_controller_approach_animation.gif" width="100%" alt="Adaptive controller animated relative stabilization with connected refueling hose">
+</a>
 
 <a href="figures/adaptive_controller_tracking_summary.png">
   <img src="figures/adaptive_controller_tracking_summary.png" width="100%" alt="Adaptive controller tracking summary">
@@ -712,12 +667,15 @@ project_2_adaptive_control_aerial_refueling/
 +-- figures/
 |   +-- refueling_relative_model.svg
 |   +-- refueling_model_forces.png
+|   +-- zero_controller_approach_animation.gif
 |   +-- zero_controller_tracking_summary.png
 |   +-- zero_controller_diagnostics.png
 |   +-- zero_controller_phase_portraits.png
+|   +-- pd_controller_approach_animation.gif
 |   +-- pd_controller_tracking_summary.png
 |   +-- pd_controller_diagnostics.png
 |   +-- pd_controller_phase_portraits.png
+|   +-- adaptive_controller_approach_animation.gif
 |   +-- adaptive_controller_tracking_summary.png
 |   +-- adaptive_controller_diagnostics.png
 |   +-- adaptive_controller_phase_portraits.png

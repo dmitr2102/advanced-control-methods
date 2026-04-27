@@ -10,7 +10,9 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import animation
 from matplotlib.collections import LineCollection
+from matplotlib.patches import Circle, Polygon
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -41,11 +43,176 @@ CONTROLLER_COLORS = {
     "adaptive": "#1f5fa8",
 }
 
+ANIMATION_FRAME_COUNT = 90
+ZERO_CONTROLLER_ANIMATION_HORIZON = 30.0
+TANKER_ORIGIN = (-55.0, 17.0)
+TANKER_SCALE = 1.0
+SMALL_AIRCRAFT_SCALE = 0.55
+
 
 def save(fig: plt.Figure, name: str) -> None:
     FIGURES_DIR.mkdir(exist_ok=True)
     fig.savefig(FIGURES_DIR / f"{name}.png", dpi=220)
     fig.savefig(FIGURES_DIR / f"{name}.pdf")
+    plt.close(fig)
+
+
+def _transform_points(points: np.ndarray, origin: tuple[float, float], scale: float) -> np.ndarray:
+    transformed = points.copy()
+    transformed[:, 0] = origin[0] + scale * transformed[:, 0]
+    transformed[:, 1] = origin[1] + scale * transformed[:, 1]
+    return transformed
+
+
+def tanker_hose_attach_point(origin: tuple[float, float] = TANKER_ORIGIN, scale: float = TANKER_SCALE) -> tuple[float, float]:
+    attach_local = np.array([[17.5, -0.5]])
+    attach = _transform_points(attach_local, origin, scale)[0]
+    return float(attach[0]), float(attach[1])
+
+
+def receiver_probe_point(position: tuple[float, float], scale: float = SMALL_AIRCRAFT_SCALE) -> tuple[float, float]:
+    return float(position[0] - 12.0 * scale), float(position[1])
+
+
+def drogue_patch(position: tuple[float, float], scale: float = SMALL_AIRCRAFT_SCALE) -> Polygon:
+    nose = receiver_probe_point(position, scale)
+    points = np.array(
+        [
+            [nose[0] - 0.9, nose[1] + 0.8],
+            [nose[0] - 0.9, nose[1] - 0.8],
+            [nose[0] + 0.6, nose[1]],
+        ]
+    )
+    return Polygon(points, closed=True, facecolor="#7f878c", edgecolor="#202020", linewidth=0.9, zorder=8)
+
+
+def draw_tanker(ax: plt.Axes, origin: tuple[float, float] = TANKER_ORIGIN, scale: float = TANKER_SCALE) -> None:
+    fuselage = np.array(
+        [
+            [-30.0, 1.4],
+            [-27.0, 3.2],
+            [15.0, 3.2],
+            [24.0, 2.4],
+            [27.0, 1.2],
+            [25.0, 0.1],
+            [16.0, -0.8],
+            [-24.0, -0.9],
+            [-29.0, 0.0],
+        ]
+    )
+    wing = np.array([[-1.0, 0.7], [15.5, 4.3], [18.5, 3.5], [4.0, -1.0], [-5.0, -1.4]])
+    tail = np.array([[17.0, 2.4], [22.0, 12.0], [26.0, 12.3], [23.0, 2.2]])
+    stabilizer = np.array([[15.0, 0.2], [27.0, 1.8], [25.5, 2.5], [13.0, 1.0]])
+    engine_1 = np.array([[-11.0, -0.7], [-4.0, -0.7], [-4.4, -3.0], [-10.7, -3.0]])
+    engine_2 = np.array([[-5.0, -0.7], [2.0, -0.7], [1.6, -3.0], [-4.7, -3.0]])
+    for points, face, edge, lw in [
+        (fuselage, "#b9c0c3", "#202020", 1.2),
+        (wing, "#9da5a9", "#202020", 1.0),
+        (tail, "#9da5a9", "#202020", 1.0),
+        (stabilizer, "#9da5a9", "#202020", 1.0),
+        (engine_1, "#a6adb0", "#202020", 0.9),
+        (engine_2, "#a6adb0", "#202020", 0.9),
+    ]:
+        ax.add_patch(Polygon(_transform_points(points, origin, scale), closed=True, facecolor=face, edgecolor=edge, linewidth=lw, zorder=2))
+    attach = tanker_hose_attach_point(origin, scale)
+    ax.scatter([attach[0]], [attach[1]], color="#42484c", s=20, zorder=3)
+
+
+def small_aircraft_patches(position: tuple[float, float], scale: float = SMALL_AIRCRAFT_SCALE) -> list[Polygon | Circle]:
+    origin = position
+    fuselage = np.array(
+        [
+            [-12.0, 0.1],
+            [-8.0, 1.5],
+            [6.0, 1.1],
+            [13.0, 0.1],
+            [8.0, -0.8],
+            [-7.0, -1.1],
+        ]
+    )
+    wing = np.array([[-1.0, 0.4], [7.0, -3.4], [1.5, -4.0], [-5.0, -0.5]])
+    tail = np.array([[7.0, 0.8], [10.5, 6.0], [13.0, 5.6], [11.0, 0.2]])
+    stabilizer = np.array([[7.5, -0.2], [14.0, -1.0], [13.5, -1.7], [7.0, -0.9]])
+    canopy = np.array([[-8.0, 1.3], [-4.4, 2.4], [-1.0, 1.6], [-2.5, 0.9], [-7.6, 0.8]])
+    parts: list[Polygon | Circle] = []
+    for points, face, edge, lw in [
+        (fuselage, "#aeb6b9", "#202020", 1.0),
+        (wing, "#8f989d", "#202020", 0.9),
+        (tail, "#8f989d", "#202020", 0.9),
+        (stabilizer, "#8f989d", "#202020", 0.9),
+        (canopy, "#d8eef8", "#202020", 0.8),
+    ]:
+        parts.append(Polygon(_transform_points(points, origin, scale), closed=True, facecolor=face, edgecolor=edge, linewidth=lw, zorder=6))
+    parts.append(Circle((origin[0] - 12.0 * scale, origin[1]), 0.65 * scale, color="#202020", zorder=7))
+    return parts
+
+
+def plot_controller_animation(result: dict[str, np.ndarray], radius: float, controller_key: str) -> None:
+    states = result["state"]
+    time = result["time"]
+    if controller_key == "zero":
+        animation_mask = time <= ZERO_CONTROLLER_ANIMATION_HORIZON
+        states = states[animation_mask]
+        time = time[animation_mask]
+    file_label = CONTROLLER_FILE_LABELS[controller_key]
+    controller_label = CONTROLLER_LABELS[controller_key]
+    color = CONTROLLER_COLORS[controller_key]
+    frame_idx = np.linspace(0, len(time) - 1, ANIMATION_FRAME_COUNT).astype(int)
+    x = states[:, 0]
+    z = states[:, 1]
+
+    fig, ax = plt.subplots(figsize=(10.5, 6.2))
+    draw_tanker(ax)
+    ax.add_patch(plt.Circle((0.0, 0.0), radius, fill=False, linestyle="--", linewidth=1.4, edgecolor="#4d7f35", zorder=3))
+    ax.scatter([0.0], [0.0], marker="x", s=80, color="#111111", zorder=8, label="refueling point")
+
+    x_margin = max(20.0, 0.10 * (float(np.max(x)) - float(np.min(x)) + 1.0))
+    z_margin = max(20.0, 0.10 * (float(np.max(z)) - float(np.min(z)) + 1.0))
+    ax.set_xlim(min(-90.0, float(np.min(x)) - x_margin), max(115.0, float(np.max(x)) + x_margin))
+    ax.set_ylim(min(-60.0, float(np.min(z)) - z_margin), max(45.0, float(np.max(z)) + z_margin))
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xlabel("x [m]")
+    ax.set_ylabel("z [m]")
+    ax.set_title(f"{controller_label}: animated relative stabilization")
+    ax.grid(True, alpha=0.20)
+
+    trail, = ax.plot([], [], color=color, linewidth=2.4, zorder=4, label="receiver trajectory")
+    hose_line, = ax.plot([], [], color="#42484c", linewidth=2.2, zorder=5, label="connected refueling hose")
+    time_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, fontsize=11, bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#dddddd", "alpha": 0.85})
+    aircraft_artists: list[Polygon | Circle] = []
+    drogue_artist: Polygon | None = None
+    hose_attach = tanker_hose_attach_point()
+
+    def init():
+        trail.set_data([], [])
+        hose_line.set_data([], [])
+        time_text.set_text("")
+        return [trail, hose_line, time_text]
+
+    def update(frame_number: int):
+        nonlocal aircraft_artists, drogue_artist
+        idx = int(frame_idx[frame_number])
+        for artist in aircraft_artists:
+            artist.remove()
+        if drogue_artist is not None:
+            drogue_artist.remove()
+            drogue_artist = None
+        aircraft_artists = small_aircraft_patches((float(x[idx]), float(z[idx])))
+        for artist in aircraft_artists:
+            ax.add_patch(artist)
+        drogue_artist = drogue_patch((float(x[idx]), float(z[idx])))
+        ax.add_patch(drogue_artist)
+        receiver_probe = receiver_probe_point((float(x[idx]), float(z[idx])))
+        hose_line.set_data([hose_attach[0], receiver_probe[0]], [hose_attach[1], receiver_probe[1]])
+        trail.set_data(x[: idx + 1], z[: idx + 1])
+        time_text.set_text(f"t = {time[idx]:.1f} s")
+        return [trail, hose_line, time_text, drogue_artist, *aircraft_artists]
+
+    ax.legend(loc="lower right")
+    ani = animation.FuncAnimation(fig, update, frames=len(frame_idx), init_func=init, blit=False, interval=45)
+    FIGURES_DIR.mkdir(exist_ok=True)
+    writer = animation.PillowWriter(fps=20)
+    ani.save(FIGURES_DIR / f"{file_label}_approach_animation.gif", writer=writer, dpi=100)
     plt.close(fig)
 
 
@@ -355,12 +522,15 @@ def main() -> None:
 
     radius = sim_cfg.refueling_radius
     plot_controller_tracking_summary(comparison_results["zero"], radius, "zero")
+    plot_controller_animation(comparison_results["zero"], radius, "zero")
     plot_controller_basic_diagnostics(comparison_results["zero"], "zero")
     plot_phase_portraits(plant, baseline_controllers["zero"], sim_cfg, "zero")
     plot_controller_tracking_summary(comparison_results["pd"], radius, "pd")
+    plot_controller_animation(comparison_results["pd"], radius, "pd")
     plot_controller_basic_diagnostics(comparison_results["pd"], "pd")
     plot_phase_portraits(plant, baseline_controllers["pd"], sim_cfg, "pd")
     plot_controller_tracking_summary(result, radius, "adaptive")
+    plot_controller_animation(result, radius, "adaptive")
     plot_adaptive_diagnostics(result)
     plot_phase_portraits(plant, controller, sim_cfg, "adaptive")
     plot_controller_comparison(comparison_results, radius)

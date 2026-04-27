@@ -1,0 +1,35 @@
+{
+  "final_state": [
+    -2.31115779894449e-13,
+    -0.5230896452030871,
+    6.108345306071147e-14,
+    -0.022440296640751662
+  ],
+  "final_position_norm_m": 0.5230896452030871,
+  "final_velocity_norm_m_s": 0.022440296640751662,
+  "final_mass_kg": 17071.868276983434,
+  "final_mass_hat_kg": 16920.54349573463,
+  "final_lyapunov": 0.0475010587302382,
+  "entered_refueling_zone": true,
+  "stays_in_zone_after_first_entry": true,
+  "controller_comparison": {
+    "zero": {
+      "final_position_norm_m": 1096.019940085246,
+      "final_velocity_norm_m_s": 18.07046360725809,
+      "entered_refueling_zone": false,
+      "stays_in_zone_after_first_entry": false
+    },
+    "pd": {
+      "final_position_norm_m": 28.986177356773606,
+      "final_velocity_norm_m_s": 0.25672385333305103,
+      "entered_refueling_zone": false,
+      "stays_in_zone_after_first_entry": false
+    },
+    "adaptive": {
+      "final_position_norm_m": 0.5230896452030871,
+      "final_velocity_norm_m_s": 0.022440296640751662,
+      "entered_refueling_zone": true,
+      "stays_in_zone_after_first_entry": true
+    }
+  }
+}

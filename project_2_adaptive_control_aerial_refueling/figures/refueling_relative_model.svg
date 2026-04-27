@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Relative aerial refueling model</title>
+  <desc id="desc">Diagram of the receiver aircraft approaching a fixed refueling point in tanker-relative x-z coordinates with position, velocity, control, damping, and gravity mismatch vectors.</desc>
+  <defs>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#1f5fa8"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#b43c2f"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#5f6670"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#c56a1a"/>
+    </marker>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#1d2733" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f8fa; }
+      .panel { fill: #ffffff; stroke: #d7dde5; stroke-width: 2; }
+      .axis { stroke: #333b45; stroke-width: 2.5; marker-end: url(#arrow-gray); }
+      .grid { stroke: #dfe5ec; stroke-width: 1; }
+      .target-zone { fill: #dff1ff; stroke: #2c82c9; stroke-width: 3; stroke-dasharray: 10 8; }
+      .target { fill: #2c82c9; stroke: #ffffff; stroke-width: 4; }
+      .receiver { fill: #e8eef7; stroke: #27384d; stroke-width: 3; filter: url(#soft-shadow); }
+      .receiver-wing { fill: #b9c9dd; stroke: #27384d; stroke-width: 2; }
+      .tanker { fill: #d9e0ea; stroke: #4b5563; stroke-width: 3; }
+      .boom { stroke: #6b7280; stroke-width: 5; stroke-linecap: round; }
+      .blue { stroke: #1f5fa8; marker-end: url(#arrow-blue); }
+      .green { stroke: #2e7d32; marker-end: url(#arrow-green); }
+      .red { stroke: #b43c2f; marker-end: url(#arrow-red); }
+      .gray { stroke: #5f6670; marker-end: url(#arrow-gray); }
+      .orange { stroke: #c56a1a; marker-end: url(#arrow-orange); }
+      .vec { fill: none; stroke-width: 4; stroke-linecap: round; }
+      .thin { stroke-width: 2.2; }
+      .label { font-family: "Segoe UI", Arial, sans-serif; font-size: 24px; fill: #1f2937; }
+      .small { font-size: 18px; fill: #374151; }
+      .math { font-family: "Cambria Math", "Times New Roman", serif; font-size: 25px; fill: #111827; }
+      .note { font-size: 17px; fill: #4b5563; }
+      .caption { font-size: 20px; font-weight: 600; fill: #111827; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="720"/>
+  <rect class="panel" x="36" y="34" width="1128" height="652" rx="8"/>
+
+  <!-- Grid and axes -->
+  <g transform="translate(0,0)">
+    <line class="grid" x1="150" y1="150" x2="150" y2="610"/>
+    <line class="grid" x1="300" y1="150" x2="300" y2="610"/>
+    <line class="grid" x1="450" y1="150" x2="450" y2="610"/>
+    <line class="grid" x1="600" y1="150" x2="600" y2="610"/>
+    <line class="grid" x1="750" y1="150" x2="750" y2="610"/>
+    <line class="grid" x1="900" y1="150" x2="900" y2="610"/>
+    <line class="grid" x1="1050" y1="150" x2="1050" y2="610"/>
+    <line class="grid" x1="90" y1="220" x2="1110" y2="220"/>
+    <line class="grid" x1="90" y1="340" x2="1110" y2="340"/>
+    <line class="grid" x1="90" y1="460" x2="1110" y2="460"/>
+    <line class="grid" x1="90" y1="580" x2="1110" y2="580"/>
+  </g>
+
+  <line class="axis" x1="185" y1="510" x2="1060" y2="510"/>
+  <line class="axis" x1="250" y1="600" x2="250" y2="120"/>
+  <text class="math" x="1068" y="518">x</text>
+  <text class="math" x="239" y="112">z</text>
+  <text class="small" x="98" y="552">tanker-relative frame</text>
+
+  <!-- Tanker and boom -->
+  <g transform="translate(135,242)">
+    <path class="tanker" d="M 0 34 C 34 12, 105 4, 185 14 L 255 24 C 277 27, 292 40, 292 53 C 292 66, 276 76, 252 78 L 178 84 C 104 90, 34 78, 0 58 C -18 48, -18 43, 0 34 z"/>
+    <path class="tanker" d="M 118 18 L 158 -38 L 190 -33 L 178 24 z"/>
+    <path class="tanker" d="M 122 80 L 165 132 L 198 124 L 178 70 z"/>
+    <path class="tanker" d="M 246 29 L 287 -2 L 304 5 L 279 44 z"/>
+    <path class="tanker" d="M 246 75 L 288 107 L 304 98 L 278 62 z"/>
+    <line class="boom" x1="292" y1="53" x2="397" y2="126"/>
+  </g>
+  <text class="label" x="110" y="224">tanker</text>
+
+  <!-- Target point and radius -->
+  <circle class="target-zone" cx="540" cy="410" r="104"/>
+  <circle class="target" cx="540" cy="410" r="12"/>
+  <text class="label" x="560" y="398">refueling point</text>
+  <text class="math" x="623" y="488">R</text>
+  <line class="vec thin blue" x1="540" y1="410" x2="638" y2="447"/>
+
+  <!-- Receiver aircraft -->
+  <g transform="translate(788,295) rotate(-8)">
+    <path class="receiver" d="M 0 44 C 36 18, 112 12, 208 27 L 279 38 C 307 42, 323 54, 323 68 C 323 83, 305 94, 277 96 L 205 102 C 112 110, 34 93, 0 68 C -20 54, -19 50, 0 44 z"/>
+    <path class="receiver-wing" d="M 119 28 L 168 -70 L 209 -62 L 186 46 z"/>
+    <path class="receiver-wing" d="M 122 94 L 176 188 L 215 177 L 187 79 z"/>
+    <path class="receiver-wing" d="M 274 42 L 326 3 L 350 12 L 314 64 z"/>
+    <path class="receiver-wing" d="M 275 91 L 329 132 L 350 120 L 313 72 z"/>
+  </g>
+  <circle cx="870" cy="350" r="8" fill="#111827"/>
+  <text class="label" x="795" y="285">receiver aircraft</text>
+
+  <!-- Position vector r from target to receiver center -->
+  <line class="vec blue" x1="540" y1="410" x2="870" y2="350"/>
+  <text class="math" x="686" y="360">r = [x, z]^T</text>
+
+  <!-- Velocity vector -->
+  <line class="vec green" x1="870" y1="350" x2="1018" y2="318"/>
+  <text class="math" x="966" y="300">v = r_dot</text>
+
+  <!-- Control vectors -->
+  <line class="vec red" x1="870" y1="350" x2="1040" y2="350"/>
+  <text class="math" x="988" y="382">u_T</text>
+  <line class="vec red" x1="870" y1="350" x2="870" y2="202"/>
+  <text class="math" x="886" y="244">u_L</text>
+
+  <!-- Damping and gravity mismatch -->
+  <line class="vec gray" x1="870" y1="350" x2="735" y2="382"/>
+  <text class="math" x="695" y="415">-C v</text>
+  <line class="vec orange" x1="870" y1="350" x2="870" y2="520"/>
+  <text class="math" x="886" y="474">-(m-m0)g xi_z</text>
+
+  <!-- Model notes -->
+  <g transform="translate(80,72)">
+    <text class="caption" x="0" y="0">2D trimmed-flight perturbation model</text>
+    <text class="note" x="0" y="34">State: s = [x, z, v_x, v_z]^T</text>
+    <text class="note" x="0" y="60">Control: u = [u_T, u_L]^T</text>
+    <text class="note" x="0" y="86">Inverse mass: theta = 1 / m(t)</text>
+  </g>
+
+  <g transform="translate(780,586)">
+    <rect x="-18" y="-30" width="348" height="78" rx="8" fill="#fff7ed" stroke="#f1b56b" stroke-width="2"/>
+    <text class="note" x="0" y="0">Low-level aircraft loops track thrust/lift corrections.</text>
+    <text class="note" x="0" y="26">The adaptive controller scales them as mass changes.</text>
+  </g>
+</svg>

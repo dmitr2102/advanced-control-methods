@@ -1,0 +1,40 @@
+{
+  "simulation": {
+    "dt": 0.01,
+    "horizon": 120.0,
+    "refueling_radius": 1.0,
+    "max_force": 180000.0
+  },
+  "plant": {
+    "initial_mass": 12000.0,
+    "fuel_flow_nominal": 42.0,
+    "fuel_flow_variation": 10.0,
+    "gravity": 9.81,
+    "damping_x": 2300.0,
+    "damping_z": 2600.0
+  },
+  "controller": {
+    "lambda_x": 0.30,
+    "lambda_z": 0.34,
+    "k_x": 0.30,
+    "k_z": 0.40,
+    "gamma": 5.0e-12,
+    "mass_hat_initial": 12000.0,
+    "mass_min": 8000.0,
+    "mass_max": 18000.0
+  },
+  "baseline_controllers": {
+    "pd": {
+      "kp_x": 0.09,
+      "kp_z": 0.136,
+      "kd_x": 0.60,
+      "kd_z": 0.74
+    }
+  },
+  "initial_state": {
+    "x": 95.0,
+    "z": -36.0,
+    "vx": -1.0,
+    "vz": 0.6
+  }
+}

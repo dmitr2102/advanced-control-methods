@@ -1,4 +1,4 @@
-﻿# Adaptive Control for Aerial Refueling Station Keeping
+# Adaptive Control for Aerial Refueling Station Keeping
 
 This project studies an adaptive controller for a simplified aerial refueling
 task. The receiver aircraft must stay close to a fixed refueling point in the
@@ -9,6 +9,24 @@ produces a smaller acceleration when the aircraft becomes heavier. A controller
 that assumes a fixed nominal mass may therefore become too weak during
 refueling. The adaptive controller estimates the inverse mass online and uses
 this estimate to scale the control forces.
+
+## Project Structure
+
+The project is organized as follows:
+
+1. Problem Definition.
+2. Main Results.
+3. Notation.
+4. Mathematical Model.
+5. Modeling Assumptions.
+6. From Full Forces to the Perturbation Model.
+7. State-Space Model.
+8. Generated Results:
+   Zero Controller, PD Controller, Adaptive Controller, and Controller
+   Comparison.
+9. Implementation.
+10. Reproducibility.
+11. References.
 
 ## Problem Definition
 
@@ -25,9 +43,42 @@ geometric offset between the aircraft center of mass and the probe tip are
 handled by lower-level loops, so the high-level station-keeping state describes
 the receiver-side refueling point directly.
 
+The open-loop behavior of the model is checked with a Zero controller, which
+applies no corrective force and shows how the receiver drifts under the
+mass-induced gravity mismatch. A nominal-mass PD controller is also considered
+as the simplest feedback baseline, so the adaptive controller can be compared
+with a standard non-adaptive regulation method.
+
 <a href="figures/refueling_model_forces.png">
   <img src="figures/refueling_model_forces.png" width="100%" alt="Aerial refueling model with coordinates, control forces, damping, and gravity mismatch">
 </a>
+
+## Main Results
+
+| Controller | Final distance to refueling point | Enters $R=1$ m zone | Main observation |
+| --- | ---: | :---: | --- |
+| Zero controller | $1096.02$ m | No | The open-loop receiver drifts away as the mass-induced gravity mismatch grows. |
+| Nominal-mass PD controller | $28.99$ m | No | Simple feedback damps the motion, but a fixed mass assumption leaves a vertical offset. |
+| Adaptive inverse-mass controller | $0.52$ m | Yes | Online inverse-mass adaptation keeps the receiver inside the refueling zone. |
+
+## Notation
+
+| Symbol | Meaning |
+| --- | --- |
+| $r=[x,z]^T$ | Relative position of the receiver-side refueling point with respect to the tanker-side refueling point. |
+| $v=[v_x,v_z]^T=\dot r$ | Relative velocity. |
+| $u=[u_T,u_L]^T$ | Incremental force correction: longitudinal thrust and vertical lift. |
+| $m(t)$ | True receiver mass during refueling. |
+| $m_0$ | Initial receiver mass. |
+| $\theta(t)=1/m(t)$ | True inverse mass. |
+| $\hat\theta(t)$ | Adaptive estimate of inverse mass. |
+| $\hat m(t)=1/\hat\theta(t)$ | Reported adaptive mass estimate. |
+| $C=\operatorname{diag}(c_x,c_z)$ | Linearized damping matrix. |
+| $\xi_z=[0,1]^T$ | Vertical unit vector. |
+| $R$ | Refueling-zone radius. |
+| $e=v+\Lambda r$ | Filtered tracking error used by the adaptive controller. |
+
+## Mathematical Model
 
 The control objective is
 
@@ -267,79 +318,12 @@ $$
 where $q(t)$ is the fuel mass flow rate. The controller may know a nominal fuel
 flow profile, but it does not know the exact true mass online.
 
-## Implementation
-
-The adaptive controller is implemented in `src/controllers/adaptive_inverse_mass.py`.
-The plant model is implemented in `src/system.py`, and the RK4 simulator is in
-`src/simulation.py`.
-
-The project currently contains:
-
-```text
-project_2_adaptive_control_aerial_refueling/
-+-- README.md
-+-- requirements.txt
-+-- configs/
-|   +-- default.json
-+-- figures/
-|   +-- refueling_relative_model.svg
-|   +-- refueling_model_forces.png
-|   +-- zero_controller_tracking_summary.png
-|   +-- zero_controller_diagnostics.png
-|   +-- zero_controller_phase_portraits.png
-|   +-- pd_controller_tracking_summary.png
-|   +-- pd_controller_diagnostics.png
-|   +-- pd_controller_phase_portraits.png
-|   +-- adaptive_controller_tracking_summary.png
-|   +-- adaptive_controller_diagnostics.png
-|   +-- adaptive_controller_phase_portraits.png
-|   +-- controller_comparison.png
-+-- results/
-|   +-- adaptive_summary.json
-+-- scripts/
-|   +-- generate_all.py
-|   +-- generate_figures.py
-+-- src/
-    +-- config.py
-    +-- main.py
-    +-- simulation.py
-    +-- system.py
-    +-- controllers/
-        +-- adaptive_inverse_mass.py
-        +-- base.py
-        +-- pd_controller.py
-        +-- zero_controller.py
-```
-
-## Reproducibility
-
-Install dependencies:
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-Run the adaptive simulation and print the final summary:
-
-```powershell
-python src/main.py
-```
-
-Generate all figures and the JSON summary:
-
-```powershell
-python scripts/generate_all.py
-```
-
-The generated numerical summary is stored in
-`results/adaptive_summary.json`.
-
 ## Generated Results
 
 Each controller is first shown separately, then the controllers are compared on
 the same initial condition.
 
-### Zero Controller Results
+### Zero Controller
 
 The Zero controller has no tunable feedback parameters. Its command is
 $u(t)=0$, so the aircraft is affected only by its initial relative velocity,
@@ -365,8 +349,8 @@ Algorithmically, the Zero controller is just:
 ```text
 given state s = [x, z, vx, vz]^T
 
-u_T <- 0
-u_L <- 0
+u_T < 0
+u_L < 0
 return u = [u_T, u_L]^T
 ```
 
@@ -414,7 +398,7 @@ Final Zero-controller result:
 }
 ```
 
-### PD Controller Results
+### PD Controller
 
 The nominal-mass PD controller uses position and velocity feedback but does
 not adapt the mass estimate. It assumes the nominal mass $m_0$ and commands
@@ -464,11 +448,11 @@ The implemented PD algorithm is:
 ```text
 given state s = [x, z, vx, vz]^T
 
-r <- [x, z]^T
-v <- [vx, vz]^T
-a_PD <- -Kp r - Kd v
-u <- C v + m0 a_PD
-u <- saturate(u, -u_max, u_max)
+r < [x, z]^T
+v < [vx, vz]^T
+a_PD < -Kp r - Kd v
+u < C v + m0 a_PD
+u < saturate(u, -u_max, u_max)
 return u
 ```
 
@@ -509,158 +493,37 @@ Final PD-controller result:
 }
 ```
 
-### Adaptive Controller Results
+### Adaptive Controller
 
-#### Adaptive-Control Form
-
-The dynamics can be written in a form convenient for certainty-equivalence
-adaptive control:
+The adaptive controller estimates the inverse mass
 
 $$
-\dot r = v,
+\theta(t)=\frac{1}{m(t)}
 $$
+
+online and uses the estimate $\hat\theta(t)$ in the force command. The compact
+adaptive-control form of the plant is
 
 $$
 \dot v = \theta \phi(s,u) - g \xi_z,
-$$
-
-where
-
-$$
-\phi(s,u)=u-Cv+m_0g \xi_z.
-$$
-
-Indeed,
-
-$$
-\theta\phi(s,u)-g \xi_z
-=
-\theta(u-Cv+m_0g \xi_z)-g \xi_z
-=
-\theta(u-Cv)-\bigl(1-m_0\theta\bigr)g \xi_z.
-$$
-
-The unknown adaptive parameter is
-
-$$
-\theta=\frac{1}{m}.
-$$
-
-The controller maintains an estimate $\hat\theta$ and the corresponding
-physical mass estimate is reported as
-
-$$
-\hat m = \frac{1}{\hat\theta}.
-$$
-
-To avoid division by zero and nonphysical estimates, the estimate is projected
-to an interval
-
-$$
-\hat\theta\in[\theta_{\min},\theta_{\max}],
-$$
-
-which corresponds to
-
-$$
-\hat m\in[m_{\min},m_{\max}].
-$$
-
-Here $\theta_{\min}$ and $\theta_{\max}$ are the lower and upper allowed
-inverse-mass estimates, while $m_{\min}$ and $m_{\max}$ are the corresponding
-physical mass bounds.
-
-#### Tracking Error
-
-The desired refueling point is fixed at the origin. We introduce the filtered
-tracking error
-
-$$
-e = v+\Lambda r,
-$$
-
-where
-
-$$
-\Lambda =
-\begin{bmatrix}
-\lambda_x & 0 \\
-0 & \lambda_z
-\end{bmatrix},
 \qquad
-\lambda_x>0,\quad \lambda_z>0.
+\phi(s,u)=u-Cv+m_0g\xi_z,
 $$
 
-If $e\to 0$, then
+where $\phi(s,u)$ is the regressor-like force term multiplying the unknown
+inverse mass.
+
+The filtered tracking error is
 
 $$
-\dot r = v = -\Lambda r,
+e=v+\Lambda r,
 $$
 
-so the relative position converges to the refueling point.
+where $\Lambda=\operatorname{diag}(\lambda_x,\lambda_z)$ is positive definite.
+If $e\to 0$, then $\dot r=-\Lambda r$, so the receiver-side refueling point
+converges to the origin.
 
-The derivative of $e$ is
-
-$$
-\dot e
-=
-\dot v+\Lambda\dot r
-=
-\theta\phi(s,u)-g \xi_z+\Lambda v.
-$$
-
-#### Certainty-Equivalent Control Law
-
-The target error dynamics are chosen as
-
-$$
-\dot e = -K e,
-$$
-
-where
-
-$$
-K =
-\begin{bmatrix}
-k_x & 0 \\
-0 & k_z
-\end{bmatrix},
-\qquad
-k_x>0,\quad k_z>0.
-$$
-
-If $\theta$ were known, the desired cancellation condition would be
-
-$$
-\theta\phi(s,u)-g \xi_z+\Lambda v = -K e.
-$$
-
-Hence
-
-$$
-\theta\phi(s,u)
-=
--K e-\Lambda v+g \xi_z.
-$$
-
-Since $\theta$ is unknown, we use the estimate $\hat\theta$:
-
-$$
-\phi(s,u)
-=
-\frac{1}{\hat\theta}
-\left(
--K e-\Lambda v+g \xi_z
-\right).
-$$
-
-Recalling that
-
-$$
-\phi(s,u)=u-Cv+m_0g \xi_z,
-$$
-
-the adaptive control law is
+The certainty-equivalent adaptive force command is
 
 $$
 u
@@ -670,10 +533,24 @@ Cv-m_0g \xi_z
 \frac{1}{\hat\theta}
 \left(
 -K e-\Lambda v+g \xi_z
-\right).
+\right),
 $$
 
-This is the force command implemented by the high-level adaptive controller.
+where $K=\operatorname{diag}(k_x,k_z)$ is positive definite. The estimate is
+updated by
+
+$$
+\dot{\hat\theta}
+=
+\gamma e^T\phi(s,u),
+$$
+
+with projection onto the admissible interval
+$[\theta_{\min},\theta_{\max}]$. The plotted adaptive mass estimate is
+
+$$
+\hat m(t)=\frac{1}{\hat\theta(t)}.
+$$
 
 In component form:
 
@@ -703,36 +580,7 @@ Here $e_x$ and $e_z$ denote the two components of the filtered error $e$. The
 vertical unit vector is denoted by $\xi_z$ and will be named `vertical_unit` in
 the code.
 
-#### Closed-Loop Error Dynamics
-
-Substituting the controller into the true plant gives
-
-$$
-\dot e
-=
--K e
-+
-\tilde\theta \phi(s,u),
-$$
-
-where
-
-$$
-\tilde\theta=\theta-\hat\theta.
-$$
-
-The nominal stabilizing term $-Ke$ is perturbed by a cross-term containing the
-parameter estimation error.
-
-#### Lyapunov Function
-
-The stability proof for the adaptive controller is based on direct Lyapunov
-analysis. The proof has four steps: write the closed-loop error dynamics,
-choose an augmented Lyapunov function, select the adaptation law so that the
-parameter-error cross-term cancels, and then conclude boundedness and
-convergence of the tracking error.
-
-Use the augmented Lyapunov function
+The stability argument uses
 
 $$
 L(e,\tilde\theta)
@@ -740,165 +588,25 @@ L(e,\tilde\theta)
 \frac{1}{2}e^Te
 +
 \frac{1}{2\gamma}\tilde\theta^2,
+\qquad
+\tilde\theta=\theta-\hat\theta.
 $$
 
-where $\gamma>0$ is the adaptation gain.
-
-For a constant unknown mass, $\dot\theta=0$, and therefore
-
-$$
-\dot{\tilde\theta}
-=
--\dot{\hat\theta}.
-$$
-
-The derivative of $L$ along the closed-loop trajectories is
+For constant unknown mass, the closed-loop error dynamics become
+$\dot e=-Ke+\tilde\theta\phi$, and the adaptation law cancels the parameter
+cross-term, giving
 
 $$
-\dot L
-=
-e^T\dot e
-+
-\frac{1}{\gamma}\tilde\theta\dot{\tilde\theta}.
+\dot L=-e^TKe\le 0.
 $$
 
-Substituting the closed-loop error dynamics,
+Thus the augmented error system is Lyapunov stable, and the filtered tracking
+error converges under the standard boundedness assumptions used in direct
+adaptive control. For slowly varying mass during refueling, the same argument
+gives practical stability because an additional bounded term proportional to
+$\dot\theta$ appears in $\dot L$.
 
-$$
-\dot L
-=
-e^T(-Ke+\tilde\theta\phi)
-+
-\frac{1}{\gamma}\tilde\theta(-\dot{\hat\theta}).
-$$
-
-Thus
-
-$$
-\dot L
-=
--e^TKe
-+
-\tilde\theta e^T\phi
--
-\frac{1}{\gamma}\tilde\theta\dot{\hat\theta}.
-$$
-
-The cross-term is canceled by choosing
-
-$$
-\dot{\hat\theta}
-=
-\gamma e^T\phi(s,u).
-$$
-
-Then
-
-$$
-\dot L
-=
--e^TKe
-\le 0.
-$$
-
-This is the key stability result: the Lyapunov function is positive definite
-in $(e,\tilde\theta)$ and its derivative is negative semidefinite. Therefore
-the augmented error system is Lyapunov stable for a constant unknown mass.
-Since $K$ is positive definite, $e\in L_2\cap L_\infty$. Under standard
-boundedness assumptions on the signals, Barbalat's lemma or LaSalle-type
-arguments imply
-
-$$
-e(t)\to 0.
-$$
-
-Because
-
-$$
-\dot r = -\Lambda r + e,
-$$
-
-and $\Lambda$ is positive definite, the relative position also converges:
-
-$$
-r(t)\to 0.
-$$
-
-#### Time-Varying Mass During Refueling
-
-In the actual refueling problem, $m(t)$ is not constant. Therefore
-
-$$
-\theta(t)=\frac{1}{m(t)}
-$$
-
-is slowly time-varying. In this case
-
-$$
-\dot{\tilde\theta}
-=
-\dot\theta-\dot{\hat\theta}.
-$$
-
-The Lyapunov derivative becomes
-
-$$
-\dot L
-=
--e^TKe
-+
-\frac{1}{\gamma}\tilde\theta\dot\theta.
-$$
-
-If the fuel flow is bounded and slow, then $|\dot\theta|$ is bounded and small.
-Therefore the adaptive controller gives practical stability: the tracking error
-remains bounded and can be made small when the mass changes slowly relative to
-the closed-loop dynamics.
-
-The constant-parameter case gives asymptotic stability, while the slowly
-time-varying case gives ultimate boundedness.
-
-#### Adaptation Law Used in Simulation
-
-The implemented adaptation law will be
-
-$$
-\dot{\hat\theta}
-=
-\gamma e^T\phi(s,u),
-$$
-
-with projection:
-
-$$
-\hat\theta
-\leftarrow
-\operatorname{proj}_{[\theta_{\min},\theta_{\max}]}
-(\hat\theta).
-$$
-
-Here $\operatorname{proj}_{[\theta_{\min},\theta_{\max}]}(\cdot)$ denotes
-projection onto the interval $[\theta_{\min},\theta_{\max}]$.
-
-In discrete time with step $\Delta t$:
-
-$$
-\hat\theta_{k+1}
-=
-\operatorname{proj}_{[\theta_{\min},\theta_{\max}]}
-\left(
-\hat\theta_k
-+
-\Delta t\,\gamma e_k^T\phi(s_k,u_k)
-\right).
-$$
-
-The mass estimate plotted in the results is
-
-$$
-\hat m_k=\frac{1}{\hat\theta_k}.
-$$
-
+Full derivation: [adaptive-control stability proof](docs/adaptive_control_stability_proof.pdf).
 
 The adaptive inverse-mass controller uses the following parameters:
 
@@ -921,15 +629,15 @@ The implemented adaptive algorithm is:
 ```text
 given state s = [x, z, vx, vz]^T and current estimate theta_hat
 
-r <- [x, z]^T
-v <- [vx, vz]^T
-e <- v + Lambda r
-desired <- -K e - Lambda v + g xi_z
-u <- C v - m0 g xi_z + desired / theta_hat
-u <- saturate(u, -u_max, u_max)
-phi <- u - C v + m0 g xi_z
-theta_hat_dot <- gamma e^T phi
-theta_hat <- project(theta_hat + dt theta_hat_dot, theta_min, theta_max)
+r < [x, z]^T
+v < [vx, vz]^T
+e < v + Lambda r
+desired < -K e - Lambda v + g xi_z
+u < C v - m0 g xi_z + desired / theta_hat
+u < saturate(u, -u_max, u_max)
+phi < u - C v + m0 g xi_z
+theta_hat_dot < gamma e^T phi
+theta_hat < project(theta_hat + dt theta_hat_dot, theta_min, theta_max)
 return u
 ```
 
@@ -985,6 +693,77 @@ the fixed mass assumption becomes inaccurate. The adaptive controller updates
 the inverse-mass estimate online and achieves the required station-keeping
 accuracy.
 
+## Implementation
+
+The adaptive controller is implemented in `src/controllers/adaptive_inverse_mass.py`.
+The plant model is implemented in `src/system.py`, and the RK4 simulator is in
+`src/simulation.py`.
+
+The project currently contains:
+
+```text
+project_2_adaptive_control_aerial_refueling/
++-- README.md
++-- requirements.txt
++-- configs/
+|   +-- default.json
++-- docs/
+|   +-- adaptive_control_stability_proof.pdf
++-- figures/
+|   +-- refueling_relative_model.svg
+|   +-- refueling_model_forces.png
+|   +-- zero_controller_tracking_summary.png
+|   +-- zero_controller_diagnostics.png
+|   +-- zero_controller_phase_portraits.png
+|   +-- pd_controller_tracking_summary.png
+|   +-- pd_controller_diagnostics.png
+|   +-- pd_controller_phase_portraits.png
+|   +-- adaptive_controller_tracking_summary.png
+|   +-- adaptive_controller_diagnostics.png
+|   +-- adaptive_controller_phase_portraits.png
+|   +-- controller_comparison.png
++-- results/
+|   +-- adaptive_summary.json
++-- scripts/
+|   +-- generate_all.py
+|   +-- generate_figures.py
+|   +-- generate_stability_pdf.py
++-- src/
+    +-- config.py
+    +-- main.py
+    +-- simulation.py
+    +-- system.py
+    +-- controllers/
+        +-- adaptive_inverse_mass.py
+        +-- base.py
+        +-- pd_controller.py
+        +-- zero_controller.py
+```
+
+## Reproducibility
+
+Install dependencies:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Run the adaptive simulation and print the final summary:
+
+```powershell
+python src/main.py
+```
+
+Generate all figures, the JSON summary, and the stability-proof PDF:
+
+```powershell
+python scripts/generate_all.py
+```
+
+The generated numerical summary is stored in
+`results/adaptive_summary.json`. The full adaptive-controller derivation is
+stored in `docs/adaptive_control_stability_proof.pdf`.
+
 ## References
 
 - H. K. Khalil, *Nonlinear Systems*, 3rd ed., Prentice Hall, 2002.
@@ -992,5 +771,3 @@ accuracy.
 - P. A. Ioannou and J. Sun, *Robust Adaptive Control*, Prentice Hall, 1996.
 - B. L. Stevens, F. L. Lewis, and E. N. Johnson, *Aircraft Control and Simulation*, 3rd ed., Wiley, 2015.
 - R. C. Nelson, *Flight Stability and Automatic Control*, 2nd ed., McGraw-Hill, 1998.
-- Skoltech Advanced Control Methods lecture notes: `Control_systems_and_stability_260413_175041.pdf`.
-- Skoltech Advanced Control Methods lecture notes: `Adaptive_control_260423_170915 (1).pdf`.

@@ -1,0 +1,261 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+
+\title{\textbf{Adaptive Controller: Model and Stability Proof}\\
+\large Adaptive aerial-refueling station keeping}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Reduced Relative Model}
+
+The tanker-relative frame is fixed at the desired refueling point. The
+controlled point is the receiver-side refueling point. The state is the
+relative position $\bm r$ and relative velocity $\bm v$ in the
+longitudinal-vertical plane:
+\[
+\bm r =
+\begin{bmatrix}
+x \\ z
+\end{bmatrix},
+\qquad
+\bm v = \dot{\bm r} =
+\begin{bmatrix}
+v_x \\ v_z
+\end{bmatrix},
+\qquad
+\bm u =
+\begin{bmatrix}
+u_T \\ u_L
+\end{bmatrix}.
+\]
+
+After subtracting the nominal trimmed forces, the perturbation model is
+\[
+\dot{\bm r}=\bm v,
+\qquad
+m(t)\dot{\bm v}
+=
+\bm u-C\bm v-\bigl(m(t)-m_0\bigr)g\bm \xi_z,
+\]
+where
+\[
+C=\operatorname{diag}(c_x,c_z),
+\qquad
+\bm \xi_z=
+\begin{bmatrix}
+0 \\ 1
+\end{bmatrix}.
+\]
+
+The unknown scalar parameter used by the adaptive controller is the inverse
+mass:
+\[
+\theta(t)=\frac{1}{m(t)}.
+\]
+Then the acceleration equation can be written in the adaptive-control form
+\[
+\dot{\bm v}
+=
+\theta\bm\phi(\bm s,\bm u)-g\bm\xi_z,
+\qquad
+\bm\phi(\bm s,\bm u)
+=
+\bm u-C\bm v+m_0g\bm\xi_z.
+\]
+
+\section{Error Variable and Control Law}
+
+Use the filtered tracking error
+\[
+\bm e=\bm v+\Lambda\bm r,
+\qquad
+\Lambda=\operatorname{diag}(\lambda_x,\lambda_z)>0.
+\]
+If $\bm e\to0$, then
+\[
+\dot{\bm r}=-\Lambda\bm r,
+\qquad
+\bm r(t)\to0.
+\]
+
+The derivative of the filtered error is
+\[
+\dot{\bm e}
+=
+\dot{\bm v}+\Lambda\bm v
+=
+\theta\bm\phi(\bm s,\bm u)-g\bm\xi_z+\Lambda\bm v.
+\]
+
+For known $\theta$, the target dynamics are $\dot{\bm e}=-K\bm e$.
+Replacing $\theta$ by its estimate gives the certainty-equivalent controller
+\[
+\bm u
+=
+C\bm v-m_0g\bm\xi_z
++
+\frac{1}{\hat\theta}
+\left(
+-K\bm e-\Lambda\bm v+g\bm\xi_z
+\right),
+\]
+where
+\[
+K=\operatorname{diag}(k_x,k_z)>0.
+\]
+
+The estimate is projected to a physically meaningful inverse-mass interval:
+\[
+\hat\theta\in[\theta_{\min},\theta_{\max}],
+\qquad
+\hat m=\frac{1}{\hat\theta}.
+\]
+
+\section{Constant-Mass Lyapunov Proof}
+
+First assume that the mass is unknown but constant, so $\theta$ is constant.
+Define the parameter error
+\[
+\tilde\theta=\theta-\hat\theta.
+\]
+Substituting the adaptive control law into the plant gives
+\[
+\dot{\bm e}
+=
+-K\bm e+\tilde\theta\bm\phi(\bm s,\bm u).
+\]
+
+Choose the augmented Lyapunov function
+\[
+L(\bm e,\tilde\theta)
+=
+\frac{1}{2}\bm e^T\bm e
++
+\frac{1}{2\gamma}\tilde\theta^2,
+\qquad
+\gamma>0.
+\]
+It is positive definite:
+\[
+L(\bm e,\tilde\theta)>0
+\quad\text{for}\quad
+(\bm e,\tilde\theta)\ne(0,0),
+\qquad
+L(0,0)=0.
+\]
+
+Since $\theta$ is constant,
+$\dot{\tilde\theta}=-\dot{\hat\theta}$. Therefore,
+\[
+\dot L
+=
+\bm e^T(-K\bm e+\tilde\theta\bm\phi)
+-
+\frac{1}{\gamma}\tilde\theta\dot{\hat\theta},
+\]
+or equivalently
+\[
+\dot L
+=
+-\bm e^TK\bm e
++
+\tilde\theta
+\left(
+\bm e^T\bm\phi
+-
+\frac{1}{\gamma}\dot{\hat\theta}
+\right).
+\]
+
+Choose the adaptation law
+\[
+\dot{\hat\theta}
+=
+\gamma\bm e^T\bm\phi(\bm s,\bm u).
+\]
+Then the parameter-error cross term cancels:
+\[
+\dot L
+=
+-\bm e^TK\bm e
+\le 0.
+\]
+
+Thus $L$ is nonincreasing, $\bm e$ and $\tilde\theta$ are bounded, and
+$\bm e$ is square integrable. Under the standard boundedness assumptions used
+in direct adaptive control, Barbalat's lemma implies
+\[
+\bm e(t)\to0.
+\]
+Since
+\[
+\dot{\bm r}
+=
+-\Lambda\bm r+\bm e
+\]
+and $\Lambda$ is positive definite, the relative position also converges:
+\[
+\bm r(t)\to0.
+\]
+
+\section{Slowly Time-Varying Mass}
+
+During refueling, the mass is not exactly constant. The inverse mass
+$\theta(t)=1/m(t)$ slowly varies because the fuel flow is bounded. In this
+case
+\[
+\dot{\tilde\theta}
+=
+\dot\theta-\dot{\hat\theta},
+\]
+and the Lyapunov derivative becomes
+\[
+\dot L
+=
+-\bm e^TK\bm e
++
+\frac{1}{\gamma}\tilde\theta\dot\theta.
+\]
+
+The first term is dissipative. The second term is a bounded disturbance term
+caused by fuel transfer. Therefore the result is practical stability, or
+ultimate boundedness: the tracking error remains bounded and small when the
+mass changes slowly relative to the closed-loop response.
+
+\section{Discrete Implementation}
+
+The simulation uses the projected update
+\[
+\hat\theta_{k+1}
+=
+\operatorname{proj}_{[\theta_{\min},\theta_{\max}]}
+\left(
+\hat\theta_k
++
+\Delta t\,\gamma\bm e_k^T\bm\phi(\bm s_k,\bm u_k)
+\right).
+\]
+The reported adaptive mass estimate and saturated command are
+\[
+\hat m_k=\frac{1}{\hat\theta_k},
+\qquad
+\bm u_k
+=
+\operatorname{sat}_{[-u_{\max},u_{\max}]}
+\left\{
+\bm u(\bm s_k,\hat\theta_k)
+\right\}.
+\]
+
+The saturation is used in simulation to keep the command physically
+meaningful; the analytical proof above corresponds to the unsaturated
+adaptive law.
+
+\end{document}

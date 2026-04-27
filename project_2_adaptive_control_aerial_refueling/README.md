@@ -1,4 +1,4 @@
-# Adaptive Control for Aerial Refueling Station Keeping
+# Adaptive Control for Aerial Refueling Task
 
 This project studies an adaptive controller for a simplified aerial refueling
 task. The receiver aircraft must stay close to a fixed refueling point in the

@@ -59,14 +59,6 @@ directly.
   <img src="figures/refueling_model_forces.png" width="100%" alt="Aerial refueling model with coordinates, control forces, damping, and gravity mismatch">
 </a>
 
-## Main Results
-
-| Controller | Final distance to refueling point | Enters $R=1$ m zone | Main observation |
-| --- | ---: | :---: | --- |
-| Zero controller | $1096.02$ m | No | The open-loop receiver drifts away as the mass-induced gravity mismatch grows. |
-| Nominal-mass PD controller | $28.99$ m | No | Simple feedback damps the motion, but a fixed mass assumption leaves a vertical offset. |
-| Adaptive inverse-mass controller | $0.52$ m | Yes | Online inverse-mass adaptation keeps the receiver inside the refueling zone. |
-
 ## Notation
 
 | Symbol | Meaning |
@@ -83,6 +75,14 @@ directly.
 | $\xi_z=[0,1]^T$ | Vertical unit vector. |
 | $R$ | Refueling-zone radius. |
 | $e=v+\Lambda r$ | Filtered tracking error used by the adaptive controller. |
+
+## Main Results
+
+| Controller | Final distance to refueling point | Enters $R=1$ m zone | Main observation |
+| --- | ---: | :---: | --- |
+| Zero controller | $1096.02$ m | No | The open-loop receiver drifts away as the mass-induced gravity mismatch grows. |
+| Nominal-mass PD controller | $28.99$ m | No | Simple feedback damps the motion, but a fixed mass assumption leaves a vertical offset. |
+| Adaptive inverse-mass controller | $0.52$ m | Yes | Online inverse-mass adaptation keeps the receiver inside the refueling zone. |
 
 ## Mathematical Model
 

@@ -97,17 +97,24 @@ while the receiver mass changes due to fuel inflow.
 The state is
 
 ```math
-s = \begin{bmatrix} x \\ z \\ v_x \\ v_z \end{bmatrix},
+s =
+\begin{bmatrix}
+s_1 \\ s_2 \\ s_3 \\ s_4
+\end{bmatrix}
+=
+\begin{bmatrix}
+x \\ z \\ v_x \\ v_z
+\end{bmatrix},
 ```
 
 where
 
-- $x$ is the longitudinal displacement of the receiver-side refueling point
+- $s_1=x$ is the longitudinal displacement of the receiver-side refueling point
   from the desired tanker-side refueling point,
-- $z$ is the vertical displacement of the receiver-side refueling point from
+- $s_2=z$ is the vertical displacement of the receiver-side refueling point from
   the desired tanker-side refueling point,
-- $v_x=\dot x$ is the relative longitudinal velocity,
-- $v_z=\dot z$ is the relative vertical velocity.
+- $s_3=v_x=\dot x$ is the relative longitudinal velocity,
+- $s_4=v_z=\dot z$ is the relative vertical velocity.
 
 We also use the compact notation
 

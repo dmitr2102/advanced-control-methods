@@ -114,7 +114,7 @@ and the cable deformation rate is
 \dot q=r_m\omega_m-r_l\omega_l
 ```
 
-The cables are modeled as pre-tensioned Kelvin-Voigt elements:
+The cables are modeled as pre-tensioned massless, free of slack Kelvin-Voigt elements:
 
 ```math
 F_{\mathrm{KV}}=kx+c\dot x

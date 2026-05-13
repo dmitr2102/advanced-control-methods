@@ -1,0 +1,35 @@
+{
+  "mode": "step",
+  "kp": 17.0,
+  "ki": 10.0,
+  "kd": 2.5,
+  "metrics": {
+    "kp": 17.0,
+    "ki": 10.0,
+    "kd": 2.5,
+    "reference_mode": "step",
+    "rms_angle_error_rad": 0.36989358930349264,
+    "max_abs_angle_error_rad": 3.1170971128457508,
+    "tail_rms_angle_error_rad": 0.4135484362557316,
+    "rms_relative_velocity_m_s": 0.06339468337821767,
+    "rms_highpass_relative_velocity_m_s": 0.0700531515942938,
+    "max_abs_cable_deformation_m": 0.02650006969832787,
+    "min_cable_tension_N": 26.981601137656796,
+    "max_abs_voltage_V": 24.0,
+    "rms_voltage_V": 6.869572284091069,
+    "rms_voltage_rate_V_s": 248.464237839815,
+    "max_abs_current_A": 19.385016093825307,
+    "saturation_fraction": 0.0058994100589941,
+    "final_integral_error": -0.09383441917070606,
+    "step_tail_rms_error_rad": 0.09885666854764706,
+    "step_max_tail_rms_error_rad": 0.14359034426540718,
+    "step_mean_settling_time_s": 4.752,
+    "step_max_settling_time_s": 5.0,
+    "step_max_overshoot_ratio": 0.0
+  },
+  "files": {
+    "state_history": "C:\\Users\\KB_Flouwss\\Study\\Skoltech\\Advanced Control\\Project 3\\pid tuning\\manual_step\\manual_step_state_history.png",
+    "summary": "C:\\Users\\KB_Flouwss\\Study\\Skoltech\\Advanced Control\\Project 3\\pid tuning\\manual_step\\manual_step_summary.json",
+    "animation": "C:\\Users\\KB_Flouwss\\Study\\Skoltech\\Advanced Control\\Project 3\\pid tuning\\manual_step\\manual_step_animation.gif"
+  }
+}

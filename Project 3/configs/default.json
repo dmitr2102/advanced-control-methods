@@ -1,0 +1,56 @@
+{
+  "simulation": {
+    "dt": 0.002,
+    "horizon": 20.0
+  },
+  "plant": {
+    "target_pulley_inertia": 0.00012,
+    "motor_pulley_inertia": 0.00008,
+    "motor_rotor_inertia": 0.00018,
+    "target_radius": 0.04,
+    "motor_radius": 0.04,
+    "cable_stiffness": 350.0,
+    "cable_damping": 18.0,
+    "cable_pretension": 40.0,
+    "target_viscous_damping": 0.012,
+    "motor_viscous_damping": 0.004,
+    "constant_load_torque": 0.0,
+    "rod_mass": 0.25,
+    "rod_length": 0.35,
+    "gravity": 9.81,
+    "motor_resistance": 1.2,
+    "motor_inductance": 0.0025,
+    "torque_constant": 0.055,
+    "back_emf_constant": 0.055,
+    "max_voltage": 24.0
+  },
+  "controller": {
+    "kp_voltage": 12.0,
+    "reference_amplitude": 2.356194490192345,
+    "reference_frequency": 0.5,
+    "max_voltage": 24.0
+  },
+  "backstepping_controller": {
+    "reference_mode": "sine",
+    "step_segment_duration": 5.0,
+    "shaper_frequency": 2.0,
+    "shaper_damping": 1.0,
+    "k1": 1.8,
+    "k2": 3.5,
+    "k3": 6.0,
+    "k4": 100.0,
+    "torque_filter_time": 0.1,
+    "current_filter_time": 0.04,
+    "max_torque_command": 1.2,
+    "max_current_command": 10.0,
+    "max_voltage": 24.0,
+    "relative_damping_gain": 0.0
+  },
+  "initial_state": {
+    "theta_l": 0.0,
+    "omega_l": 0.0,
+    "theta_m": 0.0,
+    "omega_m": 0.0,
+    "current": 0.0
+  }
+}

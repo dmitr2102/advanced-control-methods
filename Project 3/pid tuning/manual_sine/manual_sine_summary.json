@@ -1,0 +1,30 @@
+{
+  "mode": "sine",
+  "kp": 60.0,
+  "ki": 1.0,
+  "kd": 3.0,
+  "metrics": {
+    "kp": 60.0,
+    "ki": 1.0,
+    "kd": 3.0,
+    "reference_mode": "sine",
+    "rms_angle_error_rad": 0.12191565340864019,
+    "max_abs_angle_error_rad": 0.16867244044540408,
+    "tail_rms_angle_error_rad": 0.12144480020300177,
+    "rms_relative_velocity_m_s": 0.010813766675353316,
+    "rms_highpass_relative_velocity_m_s": 0.0004966590620696597,
+    "max_abs_cable_deformation_m": 0.015545158158788111,
+    "min_cable_tension_N": 34.550514374268104,
+    "max_abs_voltage_V": 9.629455616991372,
+    "rms_voltage_V": 7.407641522626251,
+    "rms_voltage_rate_V_s": 9.181270862722721,
+    "max_abs_current_A": 7.9850924367054,
+    "saturation_fraction": 0.0,
+    "final_integral_error": 0.5411221845815386
+  },
+  "files": {
+    "state_history": "C:\\Users\\KB_Flouwss\\Study\\Skoltech\\Advanced Control\\Project 3\\pid tuning\\manual_sine\\manual_sine_state_history.png",
+    "summary": "C:\\Users\\KB_Flouwss\\Study\\Skoltech\\Advanced Control\\Project 3\\pid tuning\\manual_sine\\manual_sine_summary.json",
+    "animation": "C:\\Users\\KB_Flouwss\\Study\\Skoltech\\Advanced Control\\Project 3\\pid tuning\\manual_sine\\manual_sine_animation.gif"
+  }
+}

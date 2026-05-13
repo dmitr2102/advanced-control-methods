@@ -1,0 +1,18 @@
+{
+  "final_state": [
+    -1.1412835658174658,
+    -1.2602648154550238,
+    -1.4358923959817058,
+    1.3403478149034938,
+    -3.2165468668637978
+  ],
+  "final_reference_rad": -1.2818195440258517,
+  "final_angle_error_rad": -0.14053597820838593,
+  "rms_angle_error_rad": 0.10436119187963082,
+  "max_abs_voltage_V": 11.936986409006604,
+  "max_abs_current_A": 9.855133483878443,
+  "max_abs_cable_deformation_m": 0.018175468087266902,
+  "max_abs_delta_tension_N": 13.422788603735846,
+  "min_cable_tension_N": 33.28860569813207,
+  "max_abs_rod_gravity_torque_Nm": 0.42918749687372865
+}

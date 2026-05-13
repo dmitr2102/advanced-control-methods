@@ -27,11 +27,11 @@ The main numerical results are:
 
 | Case | Controller | Gains | RMS position error, rad | Tail RMS error, rad | Max error, rad | RMS voltage, V | RMS voltage rate, V/s | Min cable tension, N |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Sine | PID | `kp=60`, `ki=1`, `kd=3` | 0.1219 | 0.1214 | 0.1687 | 7.4076 | 9.1813 | 34.5505 |
-| Step | PID | `kp=17`, `ki=10`, `kd=2.5` | 0.3699 | 0.4135 | 3.1171 | 6.8696 | 248.4642 | 26.9816 |
-| Sine | Backstepping | `k1=0.9`, `k2=1.75`, `k3=3`, `k4=50` | 0.0078 | 0.0053 | 0.0386 | 7.3186 | 19.5199 | 34.5525 |
-| Raw step | Backstepping | `k1=1.8`, `k2=3.5`, `k3=6`, `k4=100` | 0.4775 | 0.5339 | 3.1414 | 6.4866 | 83.2297 | 32.9359 |
-| Fourth-order shaped step | Backstepping | `k1=1.8`, `k2=3.5`, `k3=6`, `k4=100` | 0.0013 | 0.0015 | 0.0054 | 6.3449 | 7.3197 | 34.6352 |
+| Sine | PID | $K_p=60$, $K_i=1$, $K_d=3$ | 0.1219 | 0.1214 | 0.1687 | 7.4076 | 9.1813 | 34.5505 |
+| Step | PID | $K_p=17$, $K_i=10$, $K_d=2.5$ | 0.3699 | 0.4135 | 3.1171 | 6.8696 | 248.4642 | 26.9816 |
+| Sine | Backstepping | $k_1=0.9$, $k_2=1.75$, $k_3=3$, $k_4=50$ | 0.0078 | 0.0053 | 0.0386 | 7.3186 | 19.5199 | 34.5525 |
+| Raw step | Backstepping | $k_1=1.8$, $k_2=3.5$, $k_3=6$, $k_4=100$ | 0.4775 | 0.5339 | 3.1414 | 6.4866 | 83.2297 | 32.9359 |
+| Fourth-order shaped step | Backstepping | $k_1=1.8$, $k_2=3.5$, $k_3=6$, $k_4=100$ | 0.0013 | 0.0015 | 0.0054 | 6.3449 | 7.3197 | 34.6352 |
 
 For the sine reference, explicit-derivative backstepping is much more accurate than PID without increasing voltage magnitude. For raw step commands, neither controller receives a smooth reference, and the discontinuity excites the elastic cable dynamics. The fourth-order shaped step removes this practical mismatch and gives the best backstepping result in the current project.
 
@@ -39,23 +39,23 @@ For the sine reference, explicit-derivative backstepping is much more accurate t
 
 | Symbol | Meaning | Unit |
 | --- | --- | --- |
-| `\phi_l` | target/load shaft angle | rad |
-| `\omega_l` | target/load shaft angular velocity | rad/s |
-| `\phi_m` | motor pulley angle | rad |
-| `\omega_m` | motor pulley angular velocity | rad/s |
-| `i` | motor current | A |
-| `V` | motor voltage | V |
-| `q` | cable deformation | m |
-| `\dot q` | cable deformation rate | m/s |
-| `T_1,T_2` | cable tensions | N |
-| `\tau_c` | cable torque on target shaft | N m |
-| `\tau_g` | rod gravity torque | N m |
-| `J_l` | total target-side inertia | kg m^2 |
-| `J_m` | total motor-side inertia | kg m^2 |
-| `R` | motor resistance | Ohm |
-| `L_e` | motor inductance | H |
-| `K_t` | motor torque constant | N m/A |
-| `K_e` | back-EMF constant | V s/rad |
+| $\phi_l$ | target/load shaft angle | rad |
+| $\omega_l$ | target/load shaft angular velocity | rad/s |
+| $\phi_m$ | motor pulley angle | rad |
+| $\omega_m$ | motor pulley angular velocity | rad/s |
+| $i$ | motor current | A |
+| $V$ | motor voltage | V |
+| $q$ | cable deformation | m |
+| $\dot q$ | cable deformation rate | m/s |
+| $T_1,T_2$ | cable tensions | N |
+| $\tau_c$ | cable torque on target shaft | N m |
+| $\tau_g$ | rod gravity torque | N m |
+| $J_l$ | total target-side inertia | kg m<sup>2</sup> |
+| $J_m$ | total motor-side inertia | kg m<sup>2</sup> |
+| $R$ | motor resistance | Ohm |
+| $L_e$ | motor inductance | H |
+| $K_t$ | motor torque constant | N m/A |
+| $K_e$ | back-EMF constant | V s/rad |
 
 The state vector is
 
@@ -78,29 +78,29 @@ a=V
 
 ## 4. Mathematical Model
 
-![System model](figures/system.png)
+<img src="figures/system.png" alt="System model" width="100%">
 
 The numerical model is configured in [configs/default.json](configs/default.json). The main parameters are:
 
 | Symbol | Parameter | Value | Unit |
 | --- | --- | ---: | --- |
-| `J_{p,l}` | target pulley inertia | 0.00012 | kg m^2 |
-| `J_{p,m}` | motor pulley inertia | 0.00008 | kg m^2 |
-| `J_r` | motor rotor inertia | 0.00018 | kg m^2 |
-| `r_l` | target pulley radius | 0.04 | m |
-| `r_m` | motor pulley radius | 0.04 | m |
-| `k` | cable stiffness | 350.0 | N/m |
-| `c` | cable damping | 18.0 | N s/m |
-| `T_0` | cable pre-tension | 40.0 | N |
-| `b_l` | target viscous damping | 0.012 | N m s/rad |
-| `b_m` | motor viscous damping | 0.004 | N m s/rad |
-| `m_r` | rod mass | 0.25 | kg |
-| `L_r` | rod length | 0.35 | m |
-| `R` | motor resistance | 1.2 | Ohm |
-| `L_e` | motor inductance | 0.0025 | H |
-| `K_t` | torque constant | 0.055 | N m/A |
-| `K_e` | back-EMF constant | 0.055 | V s/rad |
-| `V_{\max}` | voltage limit | 24.0 | V |
+| $J_{p,l}$ | target pulley inertia | 0.00012 | kg m<sup>2</sup> |
+| $J_{p,m}$ | motor pulley inertia | 0.00008 | kg m<sup>2</sup> |
+| $J_r$ | motor rotor inertia | 0.00018 | kg m<sup>2</sup> |
+| $r_l$ | target pulley radius | 0.04 | m |
+| $r_m$ | motor pulley radius | 0.04 | m |
+| $k$ | cable stiffness | 350.0 | N/m |
+| $c$ | cable damping | 18.0 | N s/m |
+| $T_0$ | cable pre-tension | 40.0 | N |
+| $b_l$ | target viscous damping | 0.012 | N m s/rad |
+| $b_m$ | motor viscous damping | 0.004 | N m s/rad |
+| $m_r$ | rod mass | 0.25 | kg |
+| $L_r$ | rod length | 0.35 | m |
+| $R$ | motor resistance | 1.2 | Ohm |
+| $L_e$ | motor inductance | 0.0025 | H |
+| $K_t$ | torque constant | 0.055 | N m/A |
+| $K_e$ | back-EMF constant | 0.055 | V s/rad |
+| $V_{\max}$ | voltage limit | 24.0 | V |
 
 The cable deformation is
 
@@ -120,7 +120,7 @@ The cables are modeled as pre-tensioned Kelvin-Voigt elements:
 F_{\mathrm{KV}}=kx+c\dot x
 ```
 
-where `k` is cable stiffness and `c` is viscous damping. The pre-tension prevents negative cable tension in the operating range, while the torque-producing tension difference is
+where $k$ is cable stiffness and $c$ is viscous damping. The pre-tension prevents negative cable tension in the operating range, while the torque-producing tension difference is
 
 ```math
 T_1-T_2=2(kq+c\dot q)
@@ -181,18 +181,18 @@ V=K_pe+K_i\int e\,dt+K_d\dot e
 
 The final manual tuning values are:
 
-| Reference | `K_p` | `K_i` | `K_d` |
+| Reference | $K_p$ | $K_i$ | $K_d$ |
 | --- | ---: | ---: | ---: |
 | Sine | 60.0 | 1.0 | 3.0 |
 | Step | 17.0 | 10.0 | 2.5 |
 
 The sine PID response is acceptable but it has phase lag with underpowered motor:
 
-![PID sine response](<pid tuning/manual_sine/manual_sine_state_history.png>)
+<img src="pid%20tuning/manual_sine/manual_sine_state_history.png" alt="PID sine response" width="67%">
 
 The corresponding sine PID phase portrait is:
 
-![PID sine phase portrait](<pid tuning/manual_sine/manual_sine_phase_portrait.png>)
+<img src="pid%20tuning/manual_sine/manual_sine_phase_portrait.png" alt="PID sine phase portrait" width="67%">
 
 The sine PID animation is:
 
@@ -200,11 +200,11 @@ The sine PID animation is:
 
 The step PID response hits the voltage limit briefly and excites stronger cable motion; the integral coefficient is high to decrease static error, which damps the transition:
 
-![PID step response](<pid tuning/manual_step/manual_step_state_history.png>)
+<img src="pid%20tuning/manual_step/manual_step_state_history.png" alt="PID step response" width="67%">
 
 The corresponding step PID phase portrait is:
 
-![PID step phase portrait](<pid tuning/manual_step/manual_step_phase_portrait.png>)
+<img src="pid%20tuning/manual_step/manual_step_phase_portrait.png" alt="PID step phase portrait" width="67%">
 
 The step PID animation is:
 
@@ -231,11 +231,11 @@ i
 
 where:
 
-- `phi_l` is the target/load shaft angle;
-- `omega_l` is the target/load shaft angular velocity;
-- `phi_m` is the motor pulley angle;
-- `omega_m` is the motor pulley angular velocity;
-- `i` is the motor current.
+- $\phi_l$ is the target/load shaft angle;
+- $\omega_l$ is the target/load shaft angular velocity;
+- $\phi_m$ is the motor pulley angle;
+- $\omega_m$ is the motor pulley angular velocity;
+- $i$ is the motor current.
 
 The action is
 
@@ -297,9 +297,9 @@ The derived inertias are:
 
 | Symbol | Definition | Value | Unit |
 | --- | --- | ---: | --- |
-| `J_{\mathrm{rod}}` | `m_r L_r^2 / 3` | `0.0102083` | kg m^2 |
-| `J_l` | `J_{p,l}+J_{\mathrm{rod}}` | `0.0103283` | kg m^2 |
-| `J_m` | `J_{p,m}+J_r` | `0.00026` | kg m^2 |
+| $J_{\mathrm{rod}}$ | $m_r L_r^2 / 3$ | 0.0102083 | kg m<sup>2</sup> |
+| $J_l$ | $J_{p,l}+J_{\mathrm{rod}}$ | 0.0103283 | kg m<sup>2</sup> |
+| $J_m$ | $J_{p,m}+J_r$ | 0.00026 | kg m<sup>2</sup> |
 
 Cable deformation:
 
@@ -323,7 +323,7 @@ generic Kelvin-Voigt force law is
 F_{\mathrm{KV}} = kx+c\dot x,
 ```
 
-where `k` is the cable stiffness and `c` is the viscous damping coefficient. 
+where $k$ is the cable stiffness and $c$ is the viscous damping coefficient. 
 
 To avoid cases when cables have negative tension and stop behaving like springs we introduce initial pre-tension. The
 pre-tension cancels from the torque balance, while the tension difference is
@@ -461,13 +461,13 @@ V
 
 The derivation below follows this path step by step. We cannot command the
 load angle directly; the real plant input is the motor voltage. Therefore the
-backstepping construction first treats the load velocity `omega_l` as a
-virtual input and designs the desired velocity `alpha_1`. Then the load-side
-mechanical equation is used to find the desired cable torque `tau_c^d` that
+backstepping construction first treats the load velocity $\omega_l$ as a
+virtual input and designs the desired velocity $\alpha_1$. Then the load-side
+mechanical equation is used to find the desired cable torque $\tau_c^d$ that
 would produce that velocity behavior. The cable and motor mechanical dynamics
 then convert the desired cable-torque behavior into a desired motor current
-`i_d`. Finally, the motor electrical equation is used to choose the actual
-voltage `V` that makes the current track `i_d`.
+$i_d$. Finally, the motor electrical equation is used to choose the actual
+voltage $V$ that makes the current track $i_d$.
 
 ### Step 1. Position Error and Virtual Velocity
 
@@ -495,7 +495,7 @@ where
 \dot z_1 = \omega_l-\dot\phi_{\mathrm{ref}}
 ```
 
-Treat `omega_l` as the first virtual input and choose the desired target-shaft
+Treat $\omega_l$ as the first virtual input and choose the desired target-shaft
 velocity
 
 ```math
@@ -516,7 +516,7 @@ Then
 \dot z_1=-k_1z_1+z_2
 ```
 
-If `z_2=0`, the position error decays exponentially.
+If $z_2=0$, the position error decays exponentially.
 
 ### Step 2. Desired Cable Torque
 
@@ -526,7 +526,7 @@ Augment the Lyapunov function:
 L_2=L_1+\frac{1}{2}z_2^2
 ```
 
-The derivative of `z_2` is
+The derivative of $z_2$ is
 
 ```math
 \dot z_2
@@ -546,7 +546,7 @@ Using the target dynamics:
 -\dot\alpha_1
 ```
 
-Treat `tau_c` as the next virtual input. Choose the desired cable torque:
+Treat $\tau_c$ as the next virtual input. Choose the desired cable torque:
 
 ```math
 \tau_c^d
@@ -560,7 +560,7 @@ J_l
 +\tau_0
 ```
 
-If `tau_c = tau_c^d`, then
+If $\tau_c = \tau_c^d$, then
 
 ```math
 \dot z_2=-z_1-k_2z_2,
@@ -653,7 +653,7 @@ and
 G_c=\frac{2r_lcr_mK_t}{J_m}
 ```
 
-This term is nonzero when cable damping `c>0`. This is useful: the current
+This term is nonzero when cable damping $c>0$. This is useful: the current
 appears in the first derivative of cable torque.
 
 The torque error dynamics are
@@ -684,12 +684,12 @@ Now we can put the whole thing into the same bracket:
 
 The bracket contains:
 
-- the coupling from the previous step, `z_2/J_l`;
-- all known nonlinearities and passive plant terms, `F_c(s)`;
-- the new virtual input channel, `G_c i`;
-- the derivative of the desired virtual torque, `dot(tau_c^d)`.
+- the coupling from the previous step, $z_2/J_l$;
+- all known nonlinearities and passive plant terms, $F_c(s)$;
+- the new virtual input channel, $G_ci$;
+- the derivative of the desired virtual torque, $\dot\tau_c^d$.
 
-Choose the desired current so that this entire bracket becomes `-k_3 z_3`:
+Choose the desired current so that this entire bracket becomes $-k_3 z_3$:
 
 ```math
 i_d
@@ -703,7 +703,7 @@ i_d
 \right)
 ```
 
-If `i = i_d`, then
+If $i = i_d$, then
 
 ```math
 \frac{z_2}{J_l}
@@ -730,7 +730,7 @@ Define the current tracking error:
 z_4=i-i_d
 ```
 
-When `i` is not yet equal to `i_d`, the same substitution gives
+When $i$ is not yet equal to $i_d$, the same substitution gives
 
 ```math
 \dot L_3
@@ -792,7 +792,7 @@ V-Ri-K_e\omega_m
 \right]
 ```
 
-Choose the real motor voltage so that the whole bracket becomes `-k_4z_4`:
+Choose the real motor voltage so that the whole bracket becomes $-k_4z_4$:
 
 ```math
 V
@@ -887,7 +887,7 @@ Ri
 \right)
 ```
 
-Here `F_c(s)` is the known drift term of the cable-torque dynamics and `G_c` is
+Here $F_c(s)$ is the known drift term of the cable-torque dynamics and $G_c$ is
 the current-to-cable-torque derivative gain:
 
 ```math
@@ -897,8 +897,8 @@ G_c=
 \frac{2r_lcr_mK_t}{J_m}
 ```
 
-The terms containing `F_c(s)`, `tau_g`, `b_l omega_l`, `tau_0`, `Ri`, and
-`K_e omega_m` compensate the known plant model. The gains `k_1,k_2,k_3,k_4>0`
+The terms containing $F_c(s)$, $\tau_g$, $b_l\omega_l$, $\tau_0$, $Ri$, and
+$K_e\omega_m$ compensate the known plant model. The gains $k_1,k_2,k_3,k_4>0$
 do not cancel nonlinearities by themselves; they set the desired decay rates of
 the backstepping errors after those cancellations.
 
@@ -947,8 +947,8 @@ voltage_unsaturated = (
 voltage = np.clip(voltage_unsaturated, -self.max_voltage, self.max_voltage)
 ```
 
-Here `torque_drift` is `F_c(s)`, `torque_gain` is `G_c`,
-`torque_desired` is `tau_c^d`, and `current_desired` is `i_d`.
+Here `torque_drift` is $F_c(s)$, `torque_gain` is $G_c$,
+`torque_desired` is $\tau_c^d$, and `current_desired` is $i_d$.
 
 ### Implementation Notes
 
@@ -974,7 +974,7 @@ Also, for a raw step response, the commanded angle changes discontinuously. The
 backstepping derivation assumes that the reference is smooth enough for the
 derivatives used in the controller to exist. In the explicit-derivative version
 this means that the reference derivatives up to the fourth derivative appear in
-the voltage calculation through `dot(i_d)`. Therefore, at the exact switching
+the voltage calculation through $\dot i_d$. Therefore, at the exact switching
 instant of an ideal step, the continuous-time tracking proof does not apply
 literally.
 Between step jumps, the command is constant and the proof again applies to the
@@ -982,7 +982,7 @@ corresponding fixed reference, as long as the controller is not saturated.
 
 To make the step case compatible with the smooth-reference assumptions, the
 project also includes a shaped-step simulation. The raw command
-`theta_cmd` is passed through a fourth-order reference shaper:
+$\theta_{\mathrm{cmd}}$ is passed through a fourth-order reference shaper:
 
 ```math
 (D^2+2\zeta\omega_sD+\omega_s^2)^2r
@@ -1013,12 +1013,12 @@ or, equivalently,
 -4\zeta\omega_s^3v
 ```
 
-where `a=ddot r` and `j=r^(3)`. For an ideal raw step command, this shaper makes
-`r`, `dot r`, `ddot r`, and `r^(3)` continuous. The fourth derivative `r^(4)`
+where $a=\ddot r$ and $j=r^{(3)}$. For an ideal raw step command, this shaper makes
+$r$, $\dot r$, $\ddot r$, and $r^{(3)}$ continuous. The fourth derivative $r^{(4)}$
 is finite and piecewise smooth, but it still changes discontinuously at raw
 command switches. Therefore the strict classical proof is still an interval-wise
 proof between switches; however, the Lyapunov error variables remain continuous
-at the switch because they depend on the reference up to `r^(3)`. With a finite
+at the switch because they depend on the reference up to $r^{(3)}$. With a finite
 number of step switches, convergence to the shaped reference follows after the
 last switch for the ideal unsaturated model.
 
@@ -1028,11 +1028,11 @@ The active backstepping controller is implemented in [backstep_explicit_derivati
 
 For the sine trajectory, the selected case is `explicit_hard_half_gains`. Controller shows smooth tracking with a little cable excitation at start caused by initial velocity mismatch.
 
-![Backstepping sine response](<backstep_explicit_derivatives/selected_explicit_state_history.png>)
+<img src="backstep_explicit_derivatives/selected_explicit_state_history.png" alt="Backstepping sine response" width="67%">
 
 The corresponding sine backstepping phase portrait is:
 
-![Backstepping sine phase portrait](<backstep_explicit_derivatives/selected_explicit_phase_portrait.png>)
+<img src="backstep_explicit_derivatives/selected_explicit_phase_portrait.png" alt="Backstepping sine phase portrait" width="67%">
 
 The sine backstepping animation is:
 
@@ -1040,11 +1040,11 @@ The sine backstepping animation is:
 
 For a raw step command, the selected case is `explicit_step_hard_same_gains`. With piece-wise input controller shows oscillations at the switch moments due to piece-smooth Lyapunov Function, but stable and smooth overall. 
 
-![Backstepping raw step response](<backstep_explicit_derivatives/step_case/selected_step_state_history.png>)
+<img src="backstep_explicit_derivatives/step_case/selected_step_state_history.png" alt="Backstepping raw step response" width="67%">
 
 The corresponding raw-step backstepping phase portrait is:
 
-![Backstepping raw step phase portrait](<backstep_explicit_derivatives/step_case/selected_step_phase_portrait.png>)
+<img src="backstep_explicit_derivatives/step_case/selected_step_phase_portrait.png" alt="Backstepping raw step phase portrait" width="67%">
 
 The raw-step backstepping animation is:
 
@@ -1064,11 +1064,11 @@ For the shaped step, the selected case is `shaped_step4_w8_hard_same_gains`. The
 
 With smooth input trajectory and derivatives backstepping controller provides smooth exponential transitions without any oscillations.
 
-![Fourth-order shaped backstepping response](<backstep_explicit_derivatives/shaped_step4_case/selected_shaped_step4_state_history.png>)
+<img src="backstep_explicit_derivatives/shaped_step4_case/selected_shaped_step4_state_history.png" alt="Fourth-order shaped backstepping response" width="67%">
 
 The corresponding fourth-order shaped-step phase portrait is:
 
-![Fourth-order shaped backstepping phase portrait](<backstep_explicit_derivatives/shaped_step4_case/selected_shaped_step4_phase_portrait.png>)
+<img src="backstep_explicit_derivatives/shaped_step4_case/selected_shaped_step4_phase_portrait.png" alt="Fourth-order shaped backstepping phase portrait" width="67%">
 
 The fourth-order shaped-step backstepping animation is:
 
@@ -1094,8 +1094,8 @@ PID raw step RMS error:          0.3699 rad
 Backstepping raw step RMS error: 0.4775 rad
 ```
 
-For the step cases, the settling time is measured on the three 5 s step
-segments starting at `t=5 s`, `t=10 s`, and `t=15 s`. The settling tube is
+For the step cases, the settling time is measured on the three $5~\mathrm{s}$ step
+segments starting at $t=5~\mathrm{s}$, $t=10~\mathrm{s}$, and $t=15~\mathrm{s}$. The settling tube is
 
 ```math
 |\theta_{\mathrm{cmd}}-\phi_l|\le 0.05~\mathrm{rad}
@@ -1104,14 +1104,14 @@ segments starting at `t=5 s`, `t=10 s`, and `t=15 s`. The settling tube is
 and the reported time is the first instant after a step switch from which the
 trajectory stays inside this tube until the end of the current segment. For the
 fourth-order shaped case this tube is still measured relative to the raw step
-command `theta_cmd`; the very small RMS tracking error reported below is
-relative to the shaped reference `r`.
+command $\theta_{\mathrm{cmd}}$; the very small RMS tracking error reported below is
+relative to the shaped reference $r$.
 
 | Step case | Settling tube | Mean settling time, s | Max settling time, s | Final-second RMS error, rad |
 | --- | --- | ---: | ---: | ---: |
-| PID raw step | `|theta_cmd - phi_l| <= 0.05 rad` | 4.752 | 5.000 | 0.0989 |
-| Backstepping raw step | `|theta_cmd - phi_l| <= 0.05 rad` | 3.971 | 5.000 | 0.0704 |
-| Backstepping fourth-order shaped step | `|theta_cmd - phi_l| <= 0.05 rad` | 3.687 | 5.000 | 0.0702 |
+| PID raw step | $\lvert\theta_{\mathrm{cmd}}-\phi_l\rvert \le 0.05~\mathrm{rad}$ | 4.752 | 5.000 | 0.0989 |
+| Backstepping raw step | $\lvert\theta_{\mathrm{cmd}}-\phi_l\rvert \le 0.05~\mathrm{rad}$ | 3.971 | 5.000 | 0.0704 |
+| Backstepping fourth-order shaped step | $\lvert\theta_{\mathrm{cmd}}-\phi_l\rvert \le 0.05~\mathrm{rad}$ | 3.687 | 5.000 | 0.0702 |
 
 After adding the fourth-order shaper, backstepping tracks the shaped reference very tightly:
 

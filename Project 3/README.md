@@ -4,6 +4,8 @@
 
 ![Capstan drive](<figures/capstan drive.gif>)
 
+Source: [Aaed Musa, "High Precision Speed Reducer Using Rope", YouTube, 02:00](https://www.youtube.com/watch?v=MwIBTbumd1Q&t=120s).
+
 The project studies position control of a target pulley with an attached asymmetric rod load. The target pulley is driven through two highly elastic pre-tensioned cables by a DC motor pulley. The real control input is motor voltage, while the controlled output is the target/load shaft angle.
 
 The main control objective is
@@ -1158,3 +1160,4 @@ python -B .\scripts\generate_phase_portraits.py
 2. H. K. Khalil, *Nonlinear Systems*, 3rd edition, Prentice Hall, 2002.
 3. K. J. Astrom and R. M. Murray, *Feedback Systems: An Introduction for Scientists and Engineers*, Princeton University Press, 2008.
 4. K. Ogata, *Modern Control Engineering*, 5th edition, Prentice Hall, 2010.
+5. Aaed Musa, "High Precision Speed Reducer Using Rope", YouTube, uploaded May 31, 2024. Fragment used from 02:00. Available: https://www.youtube.com/watch?v=MwIBTbumd1Q&t=138s. Accessed: May 13, 2026.

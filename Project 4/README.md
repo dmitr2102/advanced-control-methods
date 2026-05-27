@@ -255,45 +255,39 @@ PID baseline on the S-curve with conservative gains:
 
 ![Conservative PID S-curve run](outputs/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
 
-Result: `goal`.
+| steps | time, s | progress | speed, km/h | gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 104 | 8.32 | 0.99 | 91.2 | 70 |
 
-| steps | time, s | finish speed, km/h | max speed, km/h |
-| ---: | ---: | ---: | ---: |
-| 105 | 8.40 | 90.72 | 90.72 |
-
-| max lateral, m | min edge margin, m | max grip | mean grip | RMS steer rate, rad/s | RMS torque rate, N m/s |
-| ---: | ---: | ---: | ---: | ---: | ---: |
-| 3.00 | 3.00 | 1.04 | 0.80 | 0.10 | 830.30 |
+| slip margin, N*m | steer, rad | wheel torque, N*m |
+| ---: | ---: | ---: |
+| 446 | 0.00 | 1004 |
 
 PID baseline on the S-curve with intermediate gains:
 `Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
 
 ![Intermediate PID S-curve run](outputs/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
 
-Result: `combined tire slip`.
+| steps | time, s | progress | speed, km/h | gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 120 | 9.60 | 0.99 | 66.6 | 21 |
 
-| steps | time, s | finish speed, km/h | max speed, km/h |
-| ---: | ---: | ---: | ---: |
-| 25 | 2.00 | 56.66 | 56.66 |
-
-| max lateral, m | min edge margin, m | max grip | mean grip | RMS steer rate, rad/s | RMS torque rate, N m/s |
-| ---: | ---: | ---: | ---: | ---: | ---: |
-| 1.23 | 4.77 | 1.09 | 0.75 | 0.18 | 1385.29 |
+| slip margin, N*m | steer, rad | wheel torque, N*m |
+| ---: | ---: | ---: |
+| 1140 | -0.02 | 310 |
 
 More aggressive PID tuning:
 `Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
 
 ![Aggressive PID S-curve run](outputs/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
 
-Result: `combined tire slip`.
+| steps | time, s | progress | speed, km/h | gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 208 | 16.64 | 0.99 | 35.1 | 10 |
 
-| steps | time, s | finish speed, km/h | max speed, km/h |
-| ---: | ---: | ---: | ---: |
-| 24 | 1.92 | 55.43 | 55.43 |
-
-| max lateral, m | min edge margin, m | max grip | mean grip | RMS steer rate, rad/s | RMS torque rate, N m/s |
-| ---: | ---: | ---: | ---: | ---: | ---: |
-| 0.22 | 5.78 | 1.13 | 0.75 | 0.35 | 1470.60 |
+| slip margin, N*m | steer, rad | wheel torque, N*m |
+| ---: | ---: | ---: |
+| 1308 | 0.02 | 142 |
 
 The practical conclusion is similar to the earlier PID studies: PID is simple,
 transparent, and easy to tune manually, but its behavior depends strongly on

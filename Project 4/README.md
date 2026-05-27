@@ -192,6 +192,84 @@ s_{k+1} = p(s_k,a_k),
 (x_k,y_k)\in\mathcal{T}
 ```
 
+## PID Control Evaluation
+
+The PID controller is used as the first feedback baseline for driving through
+the S-curve. It acts on the lateral error relative to the track centerline and
+outputs a steering command. A separate proportional speed loop commands rear
+wheel torque.
+
+Let
+
+```math
+e_y=y_{\mathrm{car}}-y_{\mathrm{centerline}}
+```
+
+denote the signed lateral displacement from the closest point on the track
+centerline. Positive `e_y` means that the car is to the left of the centerline.
+The integral and derivative terms are
+
+```math
+I_y(t)=\int e_y(t)\,dt,
+\qquad
+\dot e_y(t)=\frac{d e_y}{dt}.
+```
+
+The steering command combines PID lateral correction, heading correction, and
+curvature feed-forward:
+
+```math
+\delta_{\mathrm{cmd}}
+=
+\operatorname{sat}
+\left(
+\arctan(L\kappa)
+-K_pe_y
+-K_iI_y
+-K_d\dot e_y
++K_\psi e_\psi
+\right),
+```
+
+where `L` is the wheelbase, `kappa` is the centerline curvature at a lookahead
+point, and `e_psi` is the heading error. The feed-forward term steers the car
+into the bend before the lateral error becomes large, while the PID terms
+correct the remaining tracking error.
+
+The rear torque command is computed from a target speed error:
+
+```math
+T_{\mathrm{cmd}}=T_0+K_v(v_{\mathrm{ref}}-v).
+```
+
+The final tested lateral PID values are:
+
+| Case | $K_p$ | $K_i$ | $K_d$ | Steps |
+| --- | ---: | ---: | ---: | ---: |
+| Conservative S-curve run | 0.03 | 0.002 | 0.015 | 104 |
+| Conservative S-curve repeat | 0.03 | 0.002 | 0.015 | 104 |
+| Aggressive S-curve run | 0.52 | 0.002 | 0.24 | 208 |
+
+The conservative PID response is smooth and avoids abrupt steering changes, but
+it corrects the racing line slowly:
+
+![Conservative PID S-curve run](outputs/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
+
+The same conservative tuning is shown again as the low-gain reference behavior:
+
+![Conservative PID S-curve repeat](outputs/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
+
+The aggressive PID response uses much stronger proportional and derivative
+action. It reacts more quickly to centerline error, but the steering behavior is
+less smooth:
+
+![Aggressive PID S-curve run](outputs/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
+
+The practical conclusion is similar to the earlier PID studies: PID is simple,
+transparent, and easy to tune manually, but its behavior depends strongly on
+gain selection. Low gains give smooth motion with slower correction; high gains
+improve immediate response at the cost of stronger steering transients.
+
 ## Run
 
 From this folder:

@@ -275,39 +275,27 @@ PID baseline on the S-curve with conservative gains:
 
 ![Conservative PID S-curve run](figures/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
 
-| Steps | Time, s | Progress | Speed, km/h | Gas, % |
-| ---: | ---: | ---: | ---: | ---: |
-| 104 | 8.32 | 0.99 | 91.2 | 70 |
-
-| Slip margin, N m | Steer, rad | Wheel torque, N m |
-| ---: | ---: | ---: |
-| 446 | 0.00 | 1004 |
+| Steps | Time, s | Progress | Speed, km/h | Gas, % | Slip margin, N m | Steer, rad | Wheel torque, N m |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 104 | 8.32 | 0.99 | 91.2 | 70 | 446 | 0.00 | 1004 |
 
 PID baseline on the S-curve with intermediate gains:
 `Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
 
 ![Intermediate PID S-curve run](figures/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
 
-| Steps | Time, s | Progress | Speed, km/h | Gas, % |
-| ---: | ---: | ---: | ---: | ---: |
-| 120 | 9.60 | 0.99 | 66.6 | 21 |
-
-| Slip margin, N m | Steer, rad | Wheel torque, N m |
-| ---: | ---: | ---: |
-| 1140 | -0.02 | 310 |
+| Steps | Time, s | Progress | Speed, km/h | Gas, % | Slip margin, N m | Steer, rad | Wheel torque, N m |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 120 | 9.60 | 0.99 | 66.6 | 21 | 1140 | -0.02 | 310 |
 
 More aggressive PID tuning:
 `Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
 
 ![Aggressive PID S-curve run](figures/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
 
-| Steps | Time, s | Progress | Speed, km/h | Gas, % |
-| ---: | ---: | ---: | ---: | ---: |
-| 208 | 16.64 | 0.99 | 35.1 | 10 |
-
-| Slip margin, N m | Steer, rad | Wheel torque, N m |
-| ---: | ---: | ---: |
-| 1308 | 0.02 | 142 |
+| Steps | Time, s | Progress | Speed, km/h | Gas, % | Slip margin, N m | Steer, rad | Wheel torque, N m |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 208 | 16.64 | 0.99 | 35.1 | 10 | 1308 | 0.02 | 142 |
 
 The practical conclusion is similar to earlier PID studies: PID is simple,
 transparent, and easy to tune manually, but its behavior depends strongly on

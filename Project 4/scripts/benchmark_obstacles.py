@@ -10,11 +10,13 @@ from time import perf_counter
 from typing import Iterable, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SRC_ROOT = ROOT / "src"
+for path in (SRC_ROOT,):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
-from obstacle_mpc.obstacle_controller import ObstacleCasadiMPCController
-from obstacle_mpc.obstacle_env import ObstacleRaceEnv
+from controllers.obstacle_mpc import ObstacleCasadiMPCController
+from obstacle_env import ObstacleRaceEnv
 from race_env import Control, wrap_angle
 
 
@@ -52,7 +54,7 @@ def main() -> int:
     parser.add_argument("-n", "--horizon", type=int, default=15)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--max-steps", type=int, default=170)
-    parser.add_argument("--output", default="outputs/obstacle_mpc_metrics.csv")
+    parser.add_argument("--output", default="results/obstacle_mpc_metrics.csv")
     args = parser.parse_args()
 
     layouts = [item.strip() for item in args.layouts.split(",") if item.strip()]

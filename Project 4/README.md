@@ -201,8 +201,114 @@ they appear as curved strips following the road instead of straight polygons.
 
 ## 6. PID Evaluation
 
-This section is reserved for the baseline PID controller evaluation. It will be
-added separately.
+The PID controller is used as the first feedback baseline for driving through
+the S-curve. It acts on the lateral error relative to the track centerline and
+outputs a steering command. A separate proportional speed loop commands rear
+wheel torque.
+
+Let
+
+```math
+e_y=y_{\mathrm{car}}-y_{\mathrm{centerline}}
+```
+
+denote the signed lateral displacement from the closest point on the track
+centerline. Positive `e_y` means that the car is to the left of the centerline.
+The integral and derivative terms are
+
+```math
+I_y(t)=\int e_y(t)\,dt,
+\qquad
+\dot e_y(t)=\frac{d e_y}{dt}.
+```
+
+The steering command combines PID lateral correction, heading correction, and
+curvature feed-forward:
+
+```math
+\delta_{\mathrm{cmd}}
+=
+\mathrm{sat}
+\left(
+\arctan(L\kappa)
+-K_pe_y
+-K_iI_y
+-K_d\dot e_y
++K_\psi e_\psi
+\right),
+```
+
+where `L` is the wheelbase, `kappa` is the centerline curvature at a lookahead
+point, and `e_psi` is the heading error. The feed-forward term steers the car
+into the bend before the lateral error becomes large, while the PID terms
+correct the remaining tracking error.
+
+The rear torque command is computed from a target speed error:
+
+```math
+T_{\mathrm{cmd}}=T_0+K_v(v_{\mathrm{ref}}-v).
+```
+
+The final tested lateral PID values are:
+
+| Case | $K_p$ | $K_i$ | $K_d$ | Steps |
+| --- | ---: | ---: | ---: | ---: |
+| Conservative S-curve run | 0.03 | 0.002 | 0.015 | 104 |
+| Intermediate S-curve run | 0.08 | 0.002 | 0.04 | 120 |
+| Aggressive S-curve run | 0.52 | 0.002 | 0.24 | 208 |
+
+PID baseline on the S-curve with conservative gains:
+`Kp = 0.03`, `Ki = 0.002`, `Kd = 0.015`, 104 simulation steps.
+
+![Conservative PID S-curve run](<pid tuning/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif>)
+
+| steps | time, s | progress | speed, km/h | gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 104 | 8.32 | 0.99 | 91.2 | 70 |
+
+| slip margin, N*m | steer, rad | wheel torque, N*m |
+| ---: | ---: | ---: |
+| 446 | 0.00 | 1004 |
+
+PID baseline on the S-curve with intermediate gains:
+`Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
+
+![Intermediate PID S-curve run](<pid tuning/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif>)
+
+| steps | time, s | progress | speed, km/h | gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 120 | 9.60 | 0.99 | 66.6 | 21 |
+
+| slip margin, N*m | steer, rad | wheel torque, N*m |
+| ---: | ---: | ---: |
+| 1140 | -0.02 | 310 |
+
+More aggressive PID tuning:
+`Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
+
+![Aggressive PID S-curve run](<pid tuning/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif>)
+
+| steps | time, s | progress | speed, km/h | gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 208 | 16.64 | 0.99 | 35.1 | 10 |
+
+| slip margin, N*m | steer, rad | wheel torque, N*m |
+| ---: | ---: | ---: |
+| 1308 | 0.02 | 142 |
+
+The practical conclusion is similar to the earlier PID studies: PID is simple,
+transparent, and easy to tune manually, but its behavior depends strongly on
+gain selection. Low gains give smooth motion with slower correction; high gains
+improve immediate response at the cost of stronger steering transients.
+
+For this task, PID is applicable only as a local centerline-tracking controller.
+It works when the desired path is fixed, the road is clear, and the car only has
+to reduce lateral and heading errors. If an obstacle appears on the road, PID
+does not have a mechanism for choosing a new collision-free path: it will still
+try to return to the same centerline unless an external planner changes the
+reference. The same limitation appears in racing-line selection, overtaking, and
+sudden track changes. PID can stabilize tracking of a known trajectory, but it
+does not decide which trajectory should be followed.
 
 ## 7. General MPC Formulation
 
@@ -302,7 +408,7 @@ Sampling MPC cost terms:
 The best successful sampling run in the current benchmark uses `N=35` and `60`
 samples. It reaches the goal in `8.80 s` with `90.29 km/h` exit speed.
 
-![Sampling MPC, horizon 35, samples 60](outputs/s_curve_mpc_steps108_samples60_h35.gif)
+![Sampling MPC, horizon 35, samples 60](figures/s_curve_mpc_steps108_samples60_h35.gif)
 
 Sampling MPC benchmark:
 
@@ -394,7 +500,7 @@ CasADi MPC cost terms:
 The current best non-obstacle run uses `N=15`. It reaches the goal in `7.92 s`
 with an exit speed of `96.72 km/h`.
 
-![CasADi MPC, horizon 15](outputs/s_curve_casadi_pred15_sim99.gif)
+![CasADi MPC, horizon 15](figures/s_curve_casadi_pred15_sim99.gif)
 
 CasADi MPC benchmark:
 
@@ -454,16 +560,16 @@ from the second apex region along the track and ends before the finish so that
 the target point remains reachable. The obstacle is rendered as a curved strip
 following the track geometry.
 
-![Obstacle CasADi MPC, second outside wall](outputs/s_curve_obstacles_second_outside_wall_casadi_h15_steps105.gif)
+![Obstacle CasADi MPC, second outside wall](figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105.gif)
 
 The benchmark compares time to finish, exit speed, path length, smoothness, grip
 usage, and computational cost. The full CSV files are:
 
-- [outputs/mpc_benchmark_metrics.csv](outputs/mpc_benchmark_metrics.csv)
-- [outputs/mpc_benchmark_sample.csv](outputs/mpc_benchmark_sample.csv)
-- [outputs/mpc_benchmark_casadi_h15.csv](outputs/mpc_benchmark_casadi_h15.csv)
-- [outputs/obstacle_mpc_metrics_all.csv](outputs/obstacle_mpc_metrics_all.csv)
-- [outputs/obstacle_mpc_second_outside_wall_metrics.csv](outputs/obstacle_mpc_second_outside_wall_metrics.csv)
+- [results/mpc_benchmark_metrics.csv](results/mpc_benchmark_metrics.csv)
+- [results/mpc_benchmark_sample.csv](results/mpc_benchmark_sample.csv)
+- [results/mpc_benchmark_casadi_h15.csv](results/mpc_benchmark_casadi_h15.csv)
+- [results/obstacle_mpc_metrics_all.csv](results/obstacle_mpc_metrics_all.csv)
+- [results/obstacle_mpc_second_outside_wall_metrics.csv](results/obstacle_mpc_second_outside_wall_metrics.csv)
 
 | Layout | Success | Time, s | Exit speed, km/h | Path, m | Min obstacle margin, m | RMS lateral jerk, m/s^3 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -516,7 +622,7 @@ Regenerate metrics:
 
 ```powershell
 python -B .\scripts\benchmark_mpc_metrics.py
-python -B .\scripts\benchmark_obstacles.py --layouts inside,second_outside,second_outside_wall --horizon 15 --output outputs\obstacle_mpc_metrics_all.csv
+python -B .\scripts\benchmark_obstacles.py --layouts inside,second_outside,second_outside_wall --horizon 15 --output results\obstacle_mpc_metrics_all.csv
 ```
 
 ## 12. References

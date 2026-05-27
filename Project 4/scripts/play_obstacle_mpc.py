@@ -5,8 +5,11 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SRC_ROOT = ROOT / "src"
+SCRIPTS_ROOT = ROOT / "scripts"
+for path in (SRC_ROOT, SCRIPTS_ROOT):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 try:
     import pygame
@@ -17,9 +20,9 @@ except ImportError as exc:
         f"Install it with: \"{sys.executable}\" -m pip install -r requirements.txt"
     ) from exc
 
-from obstacle_mpc.obstacle_controller import ObstacleCasadiMPCController
-from obstacle_mpc.obstacle_env import ObstacleRaceEnv, TrackObstacle
-from play_pygame import (
+from controllers.obstacle_mpc import ObstacleCasadiMPCController
+from obstacle_env import ObstacleRaceEnv, TrackObstacle
+from play_sample_mpc import (
     COLORS,
     FPS,
     append_telemetry,

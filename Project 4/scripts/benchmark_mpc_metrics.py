@@ -8,8 +8,16 @@ from pathlib import Path
 from time import perf_counter
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-from casadi_mpc import solve_casadi_mpc
-from mpc_controller import solve_mpc
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+for path in (SRC_ROOT,):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
+
+from controllers.casadi_mpc import solve_casadi_mpc
+from controllers.sample_mpc import solve_mpc
 from race_env import Control, RaceCarEnv, wrap_angle
 
 
@@ -60,7 +68,7 @@ def main() -> None:
     )
     parser.add_argument("--max-steps", type=int, default=150)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--output", default="outputs/mpc_benchmark_metrics.csv")
+    parser.add_argument("--output", default="results/mpc_benchmark_metrics.csv")
     args = parser.parse_args()
 
     controllers = {item.strip().lower() for item in args.controllers.split(",") if item.strip()}

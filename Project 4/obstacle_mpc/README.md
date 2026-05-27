@@ -10,13 +10,13 @@ apex and covering the inside half of the road up to the centerline.
 Run interactive visualization:
 
 ```powershell
-python obstacle_mpc/play_obstacles.py --horizon 15
+python scripts/play_obstacle_mpc.py --horizon 15
 ```
 
 Record a GIF:
 
 ```powershell
-python obstacle_mpc/record_obstacle_gif.py --horizon 15
+python scripts/record_obstacle_gif.py --horizon 15
 ```
 
 Current smoke-test result with `horizon=15`, `seed=0`:

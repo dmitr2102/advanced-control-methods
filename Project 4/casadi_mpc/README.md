@@ -38,7 +38,7 @@ Run from the project root:
 
 ```powershell
 python -m pip install -r requirements.txt
-python casadi_mpc/play_casadi.py --horizon 24
+python scripts/play_casadi_mpc.py --horizon 24
 ```
 
 This controller is slower than the sampling controller because it solves a

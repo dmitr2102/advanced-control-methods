@@ -1,7 +1,15 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+SCRIPTS_ROOT = PROJECT_ROOT / "scripts"
+for path in (SRC_ROOT, SCRIPTS_ROOT, Path(__file__).resolve().parent):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 try:
     import pygame
@@ -13,7 +21,7 @@ except ImportError as exc:
     ) from exc
 
 from pid_controller import CenterlinePIDController, PIDGains
-from play_pygame import (
+from play_sample_mpc import (
     COLORS,
     FPS,
     append_telemetry,

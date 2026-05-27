@@ -1,9 +1,16 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 from math import cos, sin
 import sys
 from typing import Iterable, Tuple
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+for path in (SRC_ROOT,):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 try:
     import pygame
@@ -14,7 +21,7 @@ except ImportError as exc:
         f"Install it with: \"{sys.executable}\" -m pip install -r requirements.txt"
     ) from exc
 
-from mpc_controller import DEFAULT_HORIZON, DEFAULT_SAMPLES, MPCPlan, solve_mpc
+from controllers.sample_mpc import DEFAULT_HORIZON, DEFAULT_SAMPLES, MPCPlan, solve_mpc
 from race_env import CarState, RaceCarEnv, Control, clamp
 
 

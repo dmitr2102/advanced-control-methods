@@ -253,7 +253,7 @@ The final tested lateral PID values are:
 PID baseline on the S-curve with conservative gains:
 `Kp = 0.03`, `Ki = 0.002`, `Kd = 0.015`, 104 simulation steps.
 
-![Conservative PID S-curve run](outputs/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
+![Conservative PID S-curve run](s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
 
 | steps | time, s | progress | speed, km/h | gas, % |
 | ---: | ---: | ---: | ---: | ---: |
@@ -266,7 +266,7 @@ PID baseline on the S-curve with conservative gains:
 PID baseline on the S-curve with intermediate gains:
 `Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
 
-![Intermediate PID S-curve run](outputs/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
+![Intermediate PID S-curve run](s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
 
 | steps | time, s | progress | speed, km/h | gas, % |
 | ---: | ---: | ---: | ---: | ---: |
@@ -279,7 +279,7 @@ PID baseline on the S-curve with intermediate gains:
 More aggressive PID tuning:
 `Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
 
-![Aggressive PID S-curve run](outputs/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
+![Aggressive PID S-curve run](s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
 
 | steps | time, s | progress | speed, km/h | gas, % |
 | ---: | ---: | ---: | ---: | ---: |
@@ -308,13 +308,13 @@ does not decide which trajectory should be followed.
 From this folder:
 
 ```powershell
-python play_pygame.py
+python play_pid_pygame.py
 ```
 
 Manual mode:
 
 ```powershell
-python play_pygame.py --manual
+python play_pid_pygame.py --manual
 ```
 
 The right panel shows live telemetry graphs for current speed, gas command,

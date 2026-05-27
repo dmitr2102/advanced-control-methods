@@ -5,7 +5,7 @@ from math import cos, hypot, sin, sqrt
 from typing import List, Optional, Tuple
 
 from race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
-from .obstacle_env import ObstacleRaceEnv
+from obstacle_env import ObstacleRaceEnv
 
 
 @dataclass(frozen=True)

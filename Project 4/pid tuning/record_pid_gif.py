@@ -3,6 +3,15 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+SCRIPTS_ROOT = PROJECT_ROOT / "scripts"
+PID_ROOT = Path(__file__).resolve().parent
+for path in (SRC_ROOT, SCRIPTS_ROOT, PID_ROOT):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from PIL import Image
 
@@ -11,7 +20,7 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 import pygame
 
 from pid_controller import CenterlinePIDController, PIDGains
-from play_pygame import (
+from play_sample_mpc import (
     COLORS,
     append_telemetry,
     draw_car,
@@ -31,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fps", type=int, default=12)
     parser.add_argument("--scale", type=float, default=0.55)
     parser.add_argument("--frame-stride", type=int, default=2)
-    parser.add_argument("--output-dir", default="outputs")
+    parser.add_argument("--output-dir", default=None)
     parser.add_argument("--target-speed", type=float, default=32.0)
     parser.add_argument("--kp", type=float, default=0.03)
     parser.add_argument("--ki", type=float, default=0.002)
@@ -95,7 +104,7 @@ def main() -> int:
             render_frame(surface, env, font, history)
             frames.append(surface_to_image(surface, args.scale))
 
-    output_dir = Path(args.output_dir)
+    output_dir = Path(args.output_dir) if args.output_dir else PID_ROOT
     output_dir.mkdir(parents=True, exist_ok=True)
     output = output_dir / (
         f"s_curve_pid_steps{env.step_count}_kp{args.kp:g}_ki{args.ki:g}_kd{args.kd:g}.gif"

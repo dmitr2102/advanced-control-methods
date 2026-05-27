@@ -3,6 +3,14 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+SCRIPTS_ROOT = PROJECT_ROOT / "scripts"
+for path in (SRC_ROOT, SCRIPTS_ROOT):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from PIL import Image
 
@@ -10,8 +18,8 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 import pygame
 
-from mpc_controller import DEFAULT_HORIZON, DEFAULT_SAMPLES, solve_mpc
-from play_pygame import (
+from controllers.sample_mpc import DEFAULT_HORIZON, DEFAULT_SAMPLES, solve_mpc
+from play_sample_mpc import (
     COLORS,
     append_telemetry,
     draw_car,
@@ -34,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fps", type=int, default=12)
     parser.add_argument("--scale", type=float, default=0.55)
     parser.add_argument("--frame-stride", type=int, default=2)
-    parser.add_argument("--output-dir", default="outputs")
+    parser.add_argument("--output-dir", default="figures")
     return parser.parse_args()
 
 

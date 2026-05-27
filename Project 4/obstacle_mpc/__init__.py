@@ -1,5 +1,5 @@
-from .obstacle_controller import ObstacleCasadiMPCController, solve_obstacle_casadi_mpc
-from .obstacle_env import ObstacleRaceEnv, TrackObstacle
+from controllers.obstacle_mpc import ObstacleCasadiMPCController, solve_obstacle_casadi_mpc
+from obstacle_env import ObstacleRaceEnv, TrackObstacle
 
 __all__ = [
     "ObstacleCasadiMPCController",

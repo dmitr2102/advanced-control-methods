@@ -1,0 +1,44 @@
+{
+  "plant": {
+    "mass_kg": 1070.0,
+    "wheelbase_m": 2.31,
+    "rear_wheel_radius_m": 0.308,
+    "rear_slip_torque_nm": 1450.0,
+    "max_torque_command_nm": 1800.0,
+    "max_steer_rad": 0.62,
+    "max_steer_rate_radps": 2.2,
+    "steer_time_constant_s": 0.18,
+    "torque_rate_limit_nmps": 6500.0,
+    "torque_time_constant_s": 0.12,
+    "dt_s": 0.08
+  },
+  "initial_state": {
+    "speed_mps": 11.0,
+    "rear_torque_nm": 250.0,
+    "steer_rad": 0.0
+  },
+  "track": {
+    "width_m": 12.0,
+    "entry_straight_m": 16.0,
+    "first_arc_radius_m": 32.0,
+    "first_arc_angle_deg": 68.0,
+    "transition_straight_m": 14.0,
+    "second_arc_radius_m": 54.0,
+    "second_arc_angle_deg": 82.0,
+    "exit_straight_m": 22.0
+  },
+  "controllers": {
+    "sample_mpc": {
+      "default_horizon": 24,
+      "default_samples": 50
+    },
+    "casadi_mpc": {
+      "recommended_horizon": 15,
+      "track_margin_m": 1.2
+    },
+    "obstacle_mpc": {
+      "recommended_horizon": 15,
+      "default_layout": "second_outside_wall"
+    }
+  }
+}

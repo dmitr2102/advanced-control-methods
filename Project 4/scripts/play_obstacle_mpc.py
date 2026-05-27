@@ -17,9 +17,7 @@ except ImportError as exc:
         f"Install it with: \"{sys.executable}\" -m pip install -r requirements.txt"
     ) from exc
 
-from obstacle_mpc.obstacle_controller import ObstacleCasadiMPCController
-from obstacle_mpc.obstacle_env import ObstacleRaceEnv, TrackObstacle
-from play_pygame import (
+from scripts.play_sample_mpc import (
     COLORS,
     FPS,
     append_telemetry,
@@ -32,6 +30,8 @@ from play_pygame import (
     to_screen,
     window_size,
 )
+from src.controllers.obstacle_mpc import ObstacleCasadiMPCController
+from src.obstacle_env import ObstacleRaceEnv, TrackObstacle
 
 
 OBSTACLE_COLOR = (200, 45, 54)

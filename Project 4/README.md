@@ -2,6 +2,8 @@
 
 ## 1. Problem Definition
 
+![Obstacle avoidance problem statement](figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105_clean.gif)
+
 The project studies model predictive control for a rear-wheel-drive car on a
 single S-shaped racing-track section. The car must drive from a fixed initial
 state to a fixed terminal point and terminal orientation while maximizing the
@@ -94,6 +96,8 @@ a \in \mathbb{R}^2.
 The car is modeled as a kinematic bicycle with rear-wheel torque actuation. The
 main parameters are chosen to be close to a lightweight rear-wheel-drive sports
 car, approximately Mazda MX-5 / Miata class.
+
+<img src="figures/Mazda-MX-5.jpg" alt="Mazda MX-5 reference vehicle" width="67%">
 
 | Parameter | Value |
 | --- | ---: |
@@ -196,13 +200,128 @@ Obstacle scenarios use rectangular regions in Frenet coordinates:
 |e_y-e_{y,o}| \le h_y.
 ```
 
-For visualization, long obstacles are sampled along the track offset curves, so
-they appear as curved strips following the road instead of straight polygons.
-
 ## 6. PID Evaluation
 
-This section is reserved for the baseline PID controller evaluation. It will be
-added separately.
+The PID controller is used as the first feedback baseline for driving through
+the S-curve. It acts on the lateral error relative to the track centerline and
+outputs a steering command. A separate proportional speed loop commands rear
+wheel torque.
+
+Let
+
+```math
+e_y=y_{\mathrm{car}}-y_{\mathrm{centerline}}
+```
+
+denote the signed lateral displacement from the closest point on the track
+centerline. Positive `e_y` means that the car is to the left of the centerline.
+The integral and derivative terms are
+
+```math
+I_y(t)=\int e_y(t)\,dt,
+\qquad
+\dot e_y(t)=\frac{d e_y}{dt}.
+```
+
+The steering command combines PID lateral correction, heading correction, and
+curvature feed-forward:
+
+```math
+\delta_{\mathrm{cmd}}
+=
+\mathrm{sat}
+\left(
+\arctan(L\kappa)
+-K_pe_y
+-K_iI_y
+-K_d\dot e_y
++K_\psi e_\psi
+\right),
+```
+
+where `L` is the wheelbase, `kappa` is the centerline curvature at a lookahead
+point, and `e_psi` is the heading error. The feed-forward term steers the car
+into the bend before the lateral error becomes large, while the PID terms
+correct the remaining tracking error.
+
+The rear torque command is computed from a target speed error:
+
+```math
+T_{\mathrm{cmd}}=T_0+K_v(v_{\mathrm{ref}}-v).
+```
+
+The final tested lateral PID values are:
+
+| Case | `K_p` | `K_i` | `K_d` | Steps |
+| --- | ---: | ---: | ---: | ---: |
+| Conservative S-curve run | 0.03 | 0.002 | 0.015 | 104 |
+| Intermediate S-curve run | 0.08 | 0.002 | 0.04 | 120 |
+| Aggressive S-curve run | 0.52 | 0.002 | 0.24 | 208 |
+
+PID cost interpretation:
+
+| Component | Equation | Effect |
+| --- | --- | --- |
+| Lateral proportional term | `-K_p e_y` | Reacts to current displacement from the centerline |
+| Lateral integral term | `-K_i I_y` | Reduces persistent lateral offset |
+| Lateral derivative term | `-K_d dot e_y` | Adds damping to lateral motion |
+| Curvature feed-forward | `atan(L kappa)` | Turns before lateral error appears |
+| Heading feedback | `K_psi e_psi` | Aligns the car with the local track tangent |
+| Speed loop | `T_0+K_v(v_ref-v)` | Tracks a target speed with rear torque |
+| Saturation | `clip(delta_cmd), clip(T_cmd)` | Enforces steering and torque limits |
+
+PID baseline on the S-curve with conservative gains:
+`Kp = 0.03`, `Ki = 0.002`, `Kd = 0.015`, 104 simulation steps.
+
+![Conservative PID S-curve run](figures/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
+
+| Steps | Time, s | Progress | Speed, km/h | Gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 104 | 8.32 | 0.99 | 91.2 | 70 |
+
+| Slip margin, N m | Steer, rad | Wheel torque, N m |
+| ---: | ---: | ---: |
+| 446 | 0.00 | 1004 |
+
+PID baseline on the S-curve with intermediate gains:
+`Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
+
+![Intermediate PID S-curve run](figures/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
+
+| Steps | Time, s | Progress | Speed, km/h | Gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 120 | 9.60 | 0.99 | 66.6 | 21 |
+
+| Slip margin, N m | Steer, rad | Wheel torque, N m |
+| ---: | ---: | ---: |
+| 1140 | -0.02 | 310 |
+
+More aggressive PID tuning:
+`Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
+
+![Aggressive PID S-curve run](figures/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
+
+| Steps | Time, s | Progress | Speed, km/h | Gas, % |
+| ---: | ---: | ---: | ---: | ---: |
+| 208 | 16.64 | 0.99 | 35.1 | 10 |
+
+| Slip margin, N m | Steer, rad | Wheel torque, N m |
+| ---: | ---: | ---: |
+| 1308 | 0.02 | 142 |
+
+The practical conclusion is similar to earlier PID studies: PID is simple,
+transparent, and easy to tune manually, but its behavior depends strongly on
+gain selection. Low gains give smooth motion with slower correction; high gains
+improve immediate response at the cost of stronger steering transients.
+
+For this task, PID is applicable only as a local centerline-tracking controller.
+It works when the desired path is fixed, the road is clear, and the car only has
+to reduce lateral and heading errors. If an obstacle appears on the road, PID
+does not have a mechanism for choosing a new collision-free path: it will still
+try to return to the same centerline unless an external planner changes the
+reference. The same limitation appears in racing-line selection, overtaking, and
+sudden track changes. PID can stabilize tracking of a known trajectory, but it
+does not decide which trajectory should be followed.
 
 ## 7. General MPC Formulation
 
@@ -225,6 +344,76 @@ s_{k+1}=p_d(s_k,a_k)
 \approx
 s_k+\int_{t_k}^{t_k+\Delta t}p(s(\tau),a_k)\,d\tau.
 ```
+
+### Track and Obstacle Observation
+
+The controller does not see the track as an image. It receives a geometric map:
+the S-curve centerline, track width, tangent heading, curvature, finish point,
+and optional obstacle regions. For each predicted car position `(x_k,y_k)`, the
+map computes the closest point on the centerline and returns a Frenet-style
+projection:
+
+```math
+\Pi_{\mathcal{T}}(x_k,y_k)
+=
+\left(
+\sigma_k,
+e_{y,k},
+\psi_{\mathrm{ref},k},
+\kappa_k
+\right),
+```
+
+where `sigma_k` is progress along the track centerline, `e_{y,k}` is signed
+lateral displacement, `psi_ref,k` is local tangent heading, and `kappa_k` is
+local curvature. These quantities are the controller's compact observation of
+the road.
+
+Track boundaries are expressed in the same coordinates:
+
+```math
+|e_{y,k}| \le \frac{W}{2}-m_{\mathrm{track}},
+```
+
+where `W=12 m` is the track width and `m_track` is a safety margin. The finish
+condition is checked by progress, Euclidean distance to the final point, and
+heading error:
+
+```math
+\sigma_k \approx \sigma_f,
+\qquad
+\|r_k-r_f\|\le r_g,
+\qquad
+|\mathrm{wrap}(\psi_k-\psi_f)|\le \psi_g.
+```
+
+Obstacles are also represented in track coordinates rather than pixels. Each
+obstacle is a blocked Frenet rectangle:
+
+```math
+\mathcal{O}_i =
+\left\{
+(\sigma,e_y):
+|\sigma-\sigma_i|\le h_{\sigma,i},
+\quad
+|e_y-e_{y,i}|\le h_{y,i}
+\right\}.
+```
+
+Therefore, during prediction the MPC can test whether a candidate state is
+inside the road and outside all obstacles without rasterizing the scene. This is
+also why the long `second_outside_wall` obstacle can follow the curve: it is a
+range of progress values and lateral offsets along the centerline, not a
+straight world-frame rectangle.
+
+| Map quantity | Used by controller for |
+| --- | --- |
+| `sigma` | progress reward, finish detection, obstacle longitudinal overlap |
+| `e_y` | track-boundary constraint, racing-line error, obstacle lateral overlap |
+| `psi_ref` | heading-error cost and tangent-speed reward |
+| `kappa` | curvature feed-forward, speed planning, lateral-acceleration estimate |
+| track width `W` | road feasibility and edge-margin penalties |
+| obstacle rectangles `O_i` | obstacle barrier cost and collision invalidation |
 
 The common constrained optimization template is
 
@@ -302,7 +491,7 @@ Sampling MPC cost terms:
 The best successful sampling run in the current benchmark uses `N=35` and `60`
 samples. It reaches the goal in `8.80 s` with `90.29 km/h` exit speed.
 
-![Sampling MPC, horizon 35, samples 60](outputs/s_curve_mpc_steps108_samples60_h35.gif)
+![Sampling MPC, horizon 35, samples 60](figures/s_curve_mpc_steps108_samples60_h35.gif)
 
 Sampling MPC benchmark:
 
@@ -316,7 +505,10 @@ Sampling MPC benchmark:
 The result shows the main weakness of the sampling approach: performance depends
 strongly on the candidate set. A larger horizon or more samples does not
 guarantee a better route unless the sampled actions contain the correct racing
-line.
+line. Safety is also not guaranteed in the formal MPC sense: the controller only
+checks sampled rollouts. Grip violation, leaving the track, and obstacle
+collision are avoided if at least one sampled candidate stays feasible and is
+selected; otherwise the simulator safety checks terminate the run.
 
 ## 9. CasADi MPC
 
@@ -394,7 +586,7 @@ CasADi MPC cost terms:
 The current best non-obstacle run uses `N=15`. It reaches the goal in `7.92 s`
 with an exit speed of `96.72 km/h`.
 
-![CasADi MPC, horizon 15](outputs/s_curve_casadi_pred15_sim99.gif)
+![CasADi MPC, horizon 15](figures/s_curve_casadi_pred15_sim99.gif)
 
 CasADi MPC benchmark:
 
@@ -407,7 +599,12 @@ CasADi MPC benchmark:
 The important observation is that the shorter `N=15` CasADi horizon performs
 best in the current tuning. Longer horizons are not automatically better because
 the nonlinear program becomes harder to solve and the terminal cost can become
-overly conservative near the finish.
+overly conservative near the finish. CasADi MPC gives stronger finite-horizon
+model guarantees than sampling MPC because track bounds and actuator limits are
+explicit optimization constraints, while grip and obstacle margins are enforced
+by penalties and simulator checks. These guarantees are conditional on the
+model, solver convergence, and the chosen horizon; they are not global
+guarantees of reaching the finish from every possible state.
 
 ## 10. MPC with Obstacles
 
@@ -449,21 +646,31 @@ Obstacle MPC cost terms:
 | Collision invalidation | `contains(s,e_y,margin)` | Ends the rollout if the real trajectory hits an obstacle |
 | Obstacle safety metric | `min_i distance_to_obstacle_i` | Reported as minimum obstacle margin |
 
-The most recent obstacle scenario blocks the outside half of the second turn
-from the second apex region along the track and ends before the finish so that
-the target point remains reachable. The obstacle is rendered as a curved strip
-following the track geometry.
+The first obstacle scenario blocks both classical apex regions on the inside
+half of the track. This forces the controller to leave the nominal racing line
+at both turns:
 
-![Obstacle CasADi MPC, second outside wall](outputs/s_curve_obstacles_second_outside_wall_casadi_h15_steps105.gif)
+![Obstacle CasADi MPC, inside apexes](figures/s_curve_obstacles_casadi_h15_steps110.gif)
+
+The second scenario keeps the first obstacle at the inside apex and moves the
+second obstacle to the outside half of the second apex:
+
+![Obstacle CasADi MPC, second outside](figures/s_curve_obstacles_second_outside_casadi_h15_steps106.gif)
+
+The final scenario extends the second outside obstacle into a curved wall. It
+starts near the second apex, follows the outside half of the track, and ends
+before the finish so that the target point remains reachable:
+
+![Obstacle CasADi MPC, second outside wall](figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105.gif)
 
 The benchmark compares time to finish, exit speed, path length, smoothness, grip
 usage, and computational cost. The full CSV files are:
 
-- [outputs/mpc_benchmark_metrics.csv](outputs/mpc_benchmark_metrics.csv)
-- [outputs/mpc_benchmark_sample.csv](outputs/mpc_benchmark_sample.csv)
-- [outputs/mpc_benchmark_casadi_h15.csv](outputs/mpc_benchmark_casadi_h15.csv)
-- [outputs/obstacle_mpc_metrics_all.csv](outputs/obstacle_mpc_metrics_all.csv)
-- [outputs/obstacle_mpc_second_outside_wall_metrics.csv](outputs/obstacle_mpc_second_outside_wall_metrics.csv)
+- [results/mpc_benchmark_metrics.csv](results/mpc_benchmark_metrics.csv)
+- [results/mpc_benchmark_sample.csv](results/mpc_benchmark_sample.csv)
+- [results/mpc_benchmark_casadi_h15.csv](results/mpc_benchmark_casadi_h15.csv)
+- [results/obstacle_mpc_metrics_all.csv](results/obstacle_mpc_metrics_all.csv)
+- [results/obstacle_mpc_second_outside_wall_metrics.csv](results/obstacle_mpc_second_outside_wall_metrics.csv)
 
 | Layout | Success | Time, s | Exit speed, km/h | Path, m | Min obstacle margin, m | RMS lateral jerk, m/s^3 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -474,7 +681,10 @@ usage, and computational cost. The full CSV files are:
 Obstacle-aware CasADi MPC reaches the same final point in all evaluated layouts,
 including the long outside-wall case. The obstacle route is slower and less
 smooth than the nominal best CasADi run, but it remains feasible and keeps a
-positive obstacle margin.
+positive obstacle margin. Obstacle avoidance is therefore an empirical
+closed-loop guarantee for the tested initial condition and layouts: every
+executed step is checked against the obstacle geometry, but recursive feasibility
+for all future disturbances is not proven.
 
 ## 11. Reproducibility
 
@@ -492,6 +702,12 @@ Run the interactive sampling MPC:
 python -B .\scripts\play_sample_mpc.py
 ```
 
+Run the interactive PID baseline:
+
+```powershell
+python -B .\scripts\play_pid.py --kp 0.03 --ki 0.002 --kd 0.015
+```
+
 Run the interactive CasADi MPC:
 
 ```powershell
@@ -507,6 +723,7 @@ python -B .\scripts\play_obstacle_mpc.py --layout second_outside_wall --horizon 
 Regenerate the current GIFs:
 
 ```powershell
+python -B .\scripts\record_pid_gif.py --kp 0.03 --ki 0.002 --kd 0.015
 python -B .\scripts\record_sample_gif.py --horizon 35 --samples 60
 python -B .\scripts\record_casadi_gif.py --horizon 15
 python -B .\scripts\record_obstacle_gif.py --layout second_outside_wall --horizon 15
@@ -516,7 +733,7 @@ Regenerate metrics:
 
 ```powershell
 python -B .\scripts\benchmark_mpc_metrics.py
-python -B .\scripts\benchmark_obstacles.py --layouts inside,second_outside,second_outside_wall --horizon 15 --output outputs\obstacle_mpc_metrics_all.csv
+python -B .\scripts\benchmark_obstacles.py --layouts inside,second_outside,second_outside_wall --horizon 15 --output results\obstacle_mpc_metrics_all.csv
 ```
 
 ## 12. References
@@ -535,7 +752,3 @@ python -B .\scripts\benchmark_obstacles.py --layouts inside,second_outside,secon
    <https://www.mazdausa.com/siteassets/pdf/owners-optimized/2020/mx-5-miata/2020-mx-5-miata-features-specs.pdf>
 7. FIA Appendix O, circuit track-width guidance:
    <https://www.fia.com/sites/default/files/appendix_o_2022_published_30.09.2022.pdf>
-8. Suzuka Circuit official map, S Curve inspiration:
-   <https://www.suzukacircuit.jp/eng/f1/guide/look/pdf/map.pdf>
-9. Silverstone official history, Maggotts-Becketts-Chapel inspiration:
-   <https://www.silverstone.gp/en/history-of-the-circuit>

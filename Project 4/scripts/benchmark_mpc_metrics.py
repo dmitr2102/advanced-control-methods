@@ -5,12 +5,17 @@ import csv
 from dataclasses import dataclass
 from math import hypot, sqrt
 from pathlib import Path
+import sys
 from time import perf_counter
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-from casadi_mpc import solve_casadi_mpc
-from mpc_controller import solve_mpc
-from race_env import Control, RaceCarEnv, wrap_angle
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.controllers.casadi_mpc import solve_casadi_mpc
+from src.controllers.sample_mpc import solve_mpc
+from src.race_env import Control, RaceCarEnv, wrap_angle
 
 
 CONFIGS: Tuple[Tuple[int, int], ...] = (
@@ -60,7 +65,7 @@ def main() -> None:
     )
     parser.add_argument("--max-steps", type=int, default=150)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--output", default="outputs/mpc_benchmark_metrics.csv")
+    parser.add_argument("--output", default="results/mpc_benchmark_metrics.csv")
     args = parser.parse_args()
 
     controllers = {item.strip().lower() for item in args.controllers.split(",") if item.strip()}

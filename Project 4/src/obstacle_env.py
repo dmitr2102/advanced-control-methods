@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional
 
-from race_env import RaceCarEnv
+from src.race_env import RaceCarEnv
 
 
 @dataclass(frozen=True)

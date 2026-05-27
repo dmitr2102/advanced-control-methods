@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from math import cos, hypot, sin, sqrt
 from typing import List, Optional, Tuple
 
-from race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
-from .obstacle_env import ObstacleRaceEnv
+from src.obstacle_env import ObstacleRaceEnv
+from src.race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
 
 
 @dataclass(frozen=True)

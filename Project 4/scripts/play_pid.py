@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 try:
     import pygame
@@ -12,8 +17,7 @@ except ImportError as exc:
         f"Install it with: \"{sys.executable}\" -m pip install -r requirements.txt"
     ) from exc
 
-from pid_controller import CenterlinePIDController, PIDGains
-from play_pygame import (
+from scripts.play_sample_mpc import (
     COLORS,
     FPS,
     append_telemetry,
@@ -25,7 +29,8 @@ from play_pygame import (
     manual_control,
     window_size,
 )
-from race_env import RaceCarEnv
+from src.controllers.pid_controller import CenterlinePIDController, PIDGains
+from src.race_env import RaceCarEnv
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:

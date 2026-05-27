@@ -3,6 +3,11 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from PIL import Image
 
@@ -10,8 +15,7 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 import pygame
 
-from pid_controller import CenterlinePIDController, PIDGains
-from play_pygame import (
+from scripts.play_sample_mpc import (
     COLORS,
     append_telemetry,
     draw_car,
@@ -21,7 +25,8 @@ from play_pygame import (
     draw_track,
     window_size,
 )
-from race_env import RaceCarEnv
+from src.controllers.pid_controller import CenterlinePIDController, PIDGains
+from src.race_env import RaceCarEnv
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,7 +36,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fps", type=int, default=12)
     parser.add_argument("--scale", type=float, default=0.55)
     parser.add_argument("--frame-stride", type=int, default=2)
-    parser.add_argument("--output-dir", default="outputs")
+    parser.add_argument("--output-dir", default="figures")
     parser.add_argument("--target-speed", type=float, default=32.0)
     parser.add_argument("--kp", type=float, default=0.03)
     parser.add_argument("--ki", type=float, default=0.002)

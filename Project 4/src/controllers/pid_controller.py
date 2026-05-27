@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from math import atan
 from typing import Tuple
 
-from race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
+from src.race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
 
 
 @dataclass

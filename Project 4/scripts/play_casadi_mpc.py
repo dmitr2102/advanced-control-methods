@@ -17,8 +17,7 @@ except ImportError as exc:
         f"Install it with: \"{sys.executable}\" -m pip install -r requirements.txt"
     ) from exc
 
-from casadi_mpc.casadi_controller import CasadiMPCController
-from play_pygame import (
+from scripts.play_sample_mpc import (
     COLORS,
     FPS,
     append_telemetry,
@@ -30,7 +29,8 @@ from play_pygame import (
     draw_track,
     window_size,
 )
-from race_env import RaceCarEnv
+from src.controllers.casadi_mpc import CasadiMPCController
+from src.race_env import RaceCarEnv
 
 
 def parse_args() -> argparse.Namespace:

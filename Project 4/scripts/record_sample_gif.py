@@ -10,8 +10,13 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 import pygame
 
-from mpc_controller import DEFAULT_HORIZON, DEFAULT_SAMPLES, solve_mpc
-from play_pygame import (
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.play_sample_mpc import (
     COLORS,
     append_telemetry,
     draw_car,
@@ -22,7 +27,8 @@ from play_pygame import (
     draw_track,
     window_size,
 )
-from race_env import RaceCarEnv
+from src.controllers.sample_mpc import DEFAULT_HORIZON, DEFAULT_SAMPLES, solve_mpc
+from src.race_env import RaceCarEnv
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fps", type=int, default=12)
     parser.add_argument("--scale", type=float, default=0.55)
     parser.add_argument("--frame-stride", type=int, default=2)
-    parser.add_argument("--output-dir", default="outputs")
+    parser.add_argument("--output-dir", default="figures")
     return parser.parse_args()
 
 

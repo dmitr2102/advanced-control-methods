@@ -5,7 +5,7 @@ from math import atan, atan2, cos, hypot, sqrt, tan
 import random
 from typing import List, Optional, Tuple
 
-from race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
+from src.race_env import CarState, Control, RaceCarEnv, clamp, wrap_angle
 
 
 DEFAULT_HORIZON = 24

@@ -221,7 +221,7 @@ curvature feed-forward:
 ```math
 \delta_{\mathrm{cmd}}
 =
-\operatorname{sat}
+\mathrm{sat}
 \left(
 \arctan(L\kappa)
 -K_pe_y
@@ -247,23 +247,53 @@ The final tested lateral PID values are:
 | Case | $K_p$ | $K_i$ | $K_d$ | Steps |
 | --- | ---: | ---: | ---: | ---: |
 | Conservative S-curve run | 0.03 | 0.002 | 0.015 | 104 |
-| Conservative S-curve repeat | 0.03 | 0.002 | 0.015 | 104 |
+| Intermediate S-curve run | 0.08 | 0.002 | 0.04 | 120 |
 | Aggressive S-curve run | 0.52 | 0.002 | 0.24 | 208 |
 
-The conservative PID response is smooth and avoids abrupt steering changes, but
-it corrects the racing line slowly:
+PID baseline on the S-curve with conservative gains:
+`Kp = 0.03`, `Ki = 0.002`, `Kd = 0.015`, 104 simulation steps.
 
 ![Conservative PID S-curve run](outputs/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
 
-The same conservative tuning is shown again as the low-gain reference behavior:
+Result: `goal`.
 
-![Conservative PID S-curve repeat](outputs/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
+| steps | time, s | finish speed, km/h | max speed, km/h |
+| ---: | ---: | ---: | ---: |
+| 105 | 8.40 | 90.72 | 90.72 |
 
-The aggressive PID response uses much stronger proportional and derivative
-action. It reacts more quickly to centerline error, but the steering behavior is
-less smooth:
+| max lateral, m | min edge margin, m | max grip | mean grip | RMS steer rate, rad/s | RMS torque rate, N m/s |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 3.00 | 3.00 | 1.04 | 0.80 | 0.10 | 830.30 |
+
+PID baseline on the S-curve with intermediate gains:
+`Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
+
+![Intermediate PID S-curve run](outputs/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
+
+Result: `combined tire slip`.
+
+| steps | time, s | finish speed, km/h | max speed, km/h |
+| ---: | ---: | ---: | ---: |
+| 25 | 2.00 | 56.66 | 56.66 |
+
+| max lateral, m | min edge margin, m | max grip | mean grip | RMS steer rate, rad/s | RMS torque rate, N m/s |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1.23 | 4.77 | 1.09 | 0.75 | 0.18 | 1385.29 |
+
+More aggressive PID tuning:
+`Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
 
 ![Aggressive PID S-curve run](outputs/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
+
+Result: `combined tire slip`.
+
+| steps | time, s | finish speed, km/h | max speed, km/h |
+| ---: | ---: | ---: | ---: |
+| 24 | 1.92 | 55.43 | 55.43 |
+
+| max lateral, m | min edge margin, m | max grip | mean grip | RMS steer rate, rad/s | RMS torque rate, N m/s |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.22 | 5.78 | 1.13 | 0.75 | 0.35 | 1470.60 |
 
 The practical conclusion is similar to the earlier PID studies: PID is simple,
 transparent, and easy to tune manually, but its behavior depends strongly on

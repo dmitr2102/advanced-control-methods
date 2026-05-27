@@ -28,8 +28,6 @@ FPS = 60
 MPS_TO_KMH = 3.6
 HISTORY_LIMIT = 260
 
-ViewParams = Tuple[float, float, float, float, float, int, int]
-
 COLORS = {
     "bg": (242, 244, 247),
     "grass": (225, 235, 224),
@@ -65,11 +63,7 @@ COLORS = {
 }
 
 
-def _view_params(env: RaceCarEnv) -> ViewParams:
-    cached = getattr(env, "_pygame_view_params", None)
-    if cached is not None:
-        return cached
-
+def world_bounds(env: RaceCarEnv) -> Tuple[float, float, float, float]:
     points = (
         env.track.boundary_points(-1.0, count=260)
         + env.track.boundary_points(1.0, count=260)
@@ -78,54 +72,32 @@ def _view_params(env: RaceCarEnv) -> ViewParams:
     xs = [x for x, _ in points]
     ys = [y for _, y in points]
     margin = 4.0
-    min_x = min(xs) - margin
-    max_x = max(xs) + margin
-    min_y = min(ys) - margin
-    max_y = max(ys) + margin
-    width = max_x - min_x
-    height = max_y - min_y
-    scale = max(MIN_SCALE, min(BASE_SCALE, MAX_TRACK_VIEW_W / width, MAX_TRACK_VIEW_H / height))
-    screen_w = max(720, int(width * scale) + 2 * PADDING + PANEL_W)
-    screen_h = max(740, int(height * scale) + 2 * PADDING)
-    cached = (min_x, max_x, min_y, max_y, scale, screen_w, screen_h)
-    setattr(env, "_pygame_view_params", cached)
-    return cached
-
-
-def world_bounds(env: RaceCarEnv) -> Tuple[float, float, float, float]:
-    min_x, max_x, min_y, max_y, _, _, _ = _view_params(env)
-    return min_x, max_x, min_y, max_y
+    return min(xs) - margin, max(xs) + margin, min(ys) - margin, max(ys) + margin
 
 
 def view_scale(env: RaceCarEnv) -> float:
-    return _view_params(env)[4]
+    min_x, max_x, min_y, max_y = world_bounds(env)
+    width = max_x - min_x
+    height = max_y - min_y
+    scale = min(BASE_SCALE, MAX_TRACK_VIEW_W / width, MAX_TRACK_VIEW_H / height)
+    return max(MIN_SCALE, scale)
 
 
 def window_size(env: RaceCarEnv) -> Tuple[int, int]:
-    return _view_params(env)[5], _view_params(env)[6]
+    min_x, max_x, min_y, max_y = world_bounds(env)
+    scale = view_scale(env)
+    width = max(720, int((max_x - min_x) * scale) + 2 * PADDING + PANEL_W)
+    height = max(740, int((max_y - min_y) * scale) + 2 * PADDING)
+    return width, height
 
 
 def to_screen(env: RaceCarEnv, x: float, y: float) -> Tuple[int, int]:
-    min_x, _, _, max_y, scale, _, _ = _view_params(env)
+    min_x, _, min_y, max_y = world_bounds(env)
+    scale = view_scale(env)
     return (
         int(PADDING + (x - min_x) * scale),
         int(PADDING + (max_y - y) * scale),
     )
-
-
-def _track_screen_points(
-    env: RaceCarEnv,
-) -> Tuple[list[Tuple[int, int]], list[Tuple[int, int]], list[Tuple[int, int]]]:
-    cached = getattr(env, "_pygame_track_points", None)
-    if cached is not None:
-        return cached
-
-    left = [to_screen(env, x, y) for x, y in env.track.boundary_points(1.0)]
-    right = [to_screen(env, x, y) for x, y in env.track.boundary_points(-1.0)]
-    center = [to_screen(env, x, y) for x, y in env.track.centerline_points()]
-    cached = (left, right, center)
-    setattr(env, "_pygame_track_points", cached)
-    return cached
 
 
 def draw_text(
@@ -140,7 +112,8 @@ def draw_text(
 
 
 def draw_track(surface: pygame.Surface, env: RaceCarEnv) -> None:
-    min_x, max_x, min_y, max_y, scale, _, _ = _view_params(env)
+    min_x, max_x, min_y, max_y = world_bounds(env)
+    scale = view_scale(env)
     world_rect = pygame.Rect(
         PADDING,
         PADDING,
@@ -149,7 +122,9 @@ def draw_track(surface: pygame.Surface, env: RaceCarEnv) -> None:
     )
     pygame.draw.rect(surface, COLORS["grass"], world_rect)
 
-    left, right, center = _track_screen_points(env)
+    left = [to_screen(env, x, y) for x, y in env.track.boundary_points(1.0)]
+    right = [to_screen(env, x, y) for x, y in env.track.boundary_points(-1.0)]
+    center = [to_screen(env, x, y) for x, y in env.track.centerline_points()]
     pygame.draw.polygon(surface, COLORS["track"], left + list(reversed(right)))
     pygame.draw.lines(surface, COLORS["track_edge"], False, left, width=3)
     pygame.draw.lines(surface, COLORS["track_edge"], False, right, width=3)
@@ -438,11 +413,9 @@ def draw_panel(
     plan: MPCPlan | None,
     auto_mpc: bool,
     history: list[dict[str, float]],
-    mode_label: str = "mpc",
 ) -> None:
-    screen_w, screen_h = window_size(env)
-    panel_x = screen_w - PANEL_W + 18
-    panel = pygame.Rect(panel_x - 16, PADDING, PANEL_W - 14, screen_h - 2 * PADDING)
+    panel_x = window_size(env)[0] - PANEL_W + 18
+    panel = pygame.Rect(panel_x - 16, PADDING, PANEL_W - 14, window_size(env)[1] - 2 * PADDING)
     pygame.draw.rect(surface, COLORS["panel"], panel)
 
     state = env.state
@@ -457,7 +430,7 @@ def draw_panel(
 
     draw_text(surface, font, "Ackermann MPC", panel_x, PADDING + 20)
     draw_text(surface, font, f"time: {env.time:.2f}s", panel_x, PADDING + 58, COLORS["muted"])
-    draw_text(surface, font, f"mode: {mode_label if auto_mpc else 'manual'}", panel_x, PADDING + 86, COLORS["muted"])
+    draw_text(surface, font, f"mode: {'mpc' if auto_mpc else 'manual'}", panel_x, PADDING + 86, COLORS["muted"])
     draw_text(surface, font, f"track: {env.track.name}", panel_x, PADDING + 114, COLORS["muted"])
     draw_text(surface, font, f"progress: {progress:.2f}", panel_x, PADDING + 142, COLORS["muted"])
     draw_text(surface, font, f"slip margin: {slip_margin:.0f} N*m", panel_x, PADDING + 170, COLORS["muted"])
@@ -624,10 +597,10 @@ def run(argv: list[str] | None = None) -> int:
 
         now = pygame.time.get_ticks()
         if auto_mpc and not env.done and now - last_step >= int(step_delay * 1000):
+            plan = solve_mpc(env, horizon=horizon, samples=samples)
             control = plan.first_control
             env.step(control)
-            if not env.done:
-                plan = solve_mpc(env, horizon=horizon, samples=samples)
+            plan = solve_mpc(env, horizon=horizon, samples=samples)
             append_telemetry(history, env, control)
             last_step = now
 

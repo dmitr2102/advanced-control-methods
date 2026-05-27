@@ -52,12 +52,12 @@ The notation follows the course convention:
 
 | Symbol | Meaning | Unit |
 | --- | --- | --- |
-| `s` | system state | mixed |
-| `a` | action / control command | mixed |
-| `o` | observation | mixed |
-| `t` | time | s |
-| `p` | plant transition / dynamics | - |
-| `b` | disturbance or uncertainty | - |
+| $s$ | system state | mixed |
+| $a$ | action / control command | mixed |
+| $o$ | observation | mixed |
+| $t$ | time | s |
+| $p$ | plant transition / dynamics | - |
+| $b$ | disturbance or uncertainty | - |
 
 For this project the continuous state is
 
@@ -68,8 +68,8 @@ x & y & \psi & v & \delta & T
 \end{bmatrix}^T
 ```
 
-where `x,y` are the car coordinates, `psi` is heading, `v` is speed, `delta` is
-the steering angle, and `T` is the actual rear-wheel torque.
+where $x,y$ are the car coordinates, $\psi$ is heading, $v$ is speed, $\delta$
+is the steering angle, and $T$ is the actual rear-wheel torque.
 
 The action is
 
@@ -101,11 +101,11 @@ car, approximately Mazda MX-5 / Miata class.
 
 | Parameter | Value |
 | --- | ---: |
-| Mass `m` | `1070 kg` |
-| Wheelbase `L` | `2.31 m` |
-| Rear wheel radius `r_w` | `0.308 m` |
-| Initial speed `v_0` | `11.0 m/s = 39.6 km/h` |
-| Initial rear torque `T_0` | `250 N m` |
+| Mass $m$ | `1070 kg` |
+| Wheelbase $L$ | `2.31 m` |
+| Rear wheel radius $r_w$ | `0.308 m` |
+| Initial speed $v_0$ | `11.0 m/s = 39.6 km/h` |
+| Initial rear torque $T_0$ | `250 N m` |
 | Maximum torque command | `1800 N m` |
 | Rear slip torque threshold | `1450 N m` |
 | Maximum steering angle | `0.62 rad` |
@@ -130,8 +130,8 @@ The continuous-time dynamics are
 \frac{1}{m}
 \left(
 \frac{T}{r_w}
--c_dv|v|
--c_rv
+-c_d v\lvert v\rvert
+-c_r v
 \right)
 ```
 
@@ -159,7 +159,7 @@ first-order actuator dynamics with rate limits:
 The rear-wheel torque slip constraint is
 
 ```math
-|T| \le T_{\mathrm{slip}}.
+\lvert T\rvert \le T_{\mathrm{slip}}.
 ```
 
 The lateral tire limit is approximated by the lateral acceleration
@@ -179,9 +179,9 @@ The track is one fixed S-shaped section with two arcs of different radii:
 | Segment | Parameter |
 | --- | ---: |
 | Entry straight | `16 m` |
-| First arc | `R = 32 m`, `68 deg` |
+| First arc | $R=32~\mathrm{m}$, $68^\circ$ |
 | Transition straight | `14 m` |
-| Second arc | `R = 54 m`, `82 deg` |
+| Second arc | $R=54~\mathrm{m}$, $82^\circ$ |
 | Exit straight | `22 m` |
 | Track width | `12 m` |
 
@@ -189,15 +189,15 @@ The track is represented by a piecewise centerline. The signed lateral
 coordinate is measured relative to the centerline; the track boundary is
 
 ```math
-|e_y| \le 6~\mathrm{m}.
+\lvert e_y\rvert \le 6~\mathrm{m}.
 ```
 
 Obstacle scenarios use rectangular regions in Frenet coordinates:
 
 ```math
-|s-s_o| \le h_s,
+\lvert s-s_o\rvert \le h_s,
 \qquad
-|e_y-e_{y,o}| \le h_y.
+\lvert e_y-e_{y,o}\rvert \le h_y.
 ```
 
 ## 6. PID Evaluation
@@ -214,7 +214,7 @@ e_y=y_{\mathrm{car}}-y_{\mathrm{centerline}}
 ```
 
 denote the signed lateral displacement from the closest point on the track
-centerline. Positive `e_y` means that the car is to the left of the centerline.
+centerline. Positive $e_y$ means that the car is to the left of the centerline.
 The integral and derivative terms are
 
 ```math
@@ -239,8 +239,8 @@ curvature feed-forward:
 \right),
 ```
 
-where `L` is the wheelbase, `kappa` is the centerline curvature at a lookahead
-point, and `e_psi` is the heading error. The feed-forward term steers the car
+where $L$ is the wheelbase, $\kappa$ is the centerline curvature at a lookahead
+point, and $e_\psi$ is the heading error. The feed-forward term steers the car
 into the bend before the lateral error becomes large, while the PID terms
 correct the remaining tracking error.
 
@@ -271,7 +271,7 @@ PID cost interpretation:
 | Saturation | $\mathrm{clip}(\delta_{\mathrm{cmd}}),\ \mathrm{clip}(T_{\mathrm{cmd}})$ | Enforces steering and torque limits |
 
 PID baseline on the S-curve with conservative gains:
-`Kp = 0.03`, `Ki = 0.002`, `Kd = 0.015`, 104 simulation steps.
+$K_p=0.03$, $K_i=0.002$, $K_d=0.015$, 104 simulation steps.
 
 ![Conservative PID S-curve run](figures/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
 
@@ -280,7 +280,7 @@ PID baseline on the S-curve with conservative gains:
 | 104 | 8.32 | 0.99 | 91.2 | 70 | 446 | 0.00 | 1004 |
 
 PID baseline on the S-curve with intermediate gains:
-`Kp = 0.08`, `Ki = 0.002`, `Kd = 0.04`, 120 simulation steps.
+$K_p=0.08$, $K_i=0.002$, $K_d=0.04$, 120 simulation steps.
 
 ![Intermediate PID S-curve run](figures/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
 
@@ -289,7 +289,7 @@ PID baseline on the S-curve with intermediate gains:
 | 120 | 9.60 | 0.99 | 66.6 | 21 | 1140 | -0.02 | 310 |
 
 More aggressive PID tuning:
-`Kp = 0.52`, `Ki = 0.002`, `Kd = 0.24`, 208 simulation steps.
+$K_p=0.52$, $K_i=0.002$, $K_d=0.24$, 208 simulation steps.
 
 ![Aggressive PID S-curve run](figures/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
 
@@ -313,8 +313,8 @@ does not decide which trajectory should be followed.
 
 ## 7. General MPC Formulation
 
-All MPC controllers use the same receding-horizon idea. At time `t`, the
-controller receives the current state `s_t`, predicts the plant for `N` discrete
+All MPC controllers use the same receding-horizon idea. At time $t$, the
+controller receives the current state $s_t$, predicts the plant for $N$ discrete
 steps, solves a finite-horizon optimal control problem, applies only the first
 action, and then replans from the next measured state:
 
@@ -352,27 +352,27 @@ e_{y,k},
 \right),
 ```
 
-where `sigma_k` is progress along the track centerline, `e_{y,k}` is signed
-lateral displacement, `psi_ref,k` is local tangent heading, and `kappa_k` is
-local curvature. These quantities are the controller's compact observation of
+where $\sigma_k$ is progress along the track centerline, $e_{y,k}$ is signed
+lateral displacement, $\psi_{\mathrm{ref},k}$ is local tangent heading, and
+$\kappa_k$ is local curvature. These quantities are the controller's compact observation of
 the road.
 
 Track boundaries are expressed in the same coordinates:
 
 ```math
-|e_{y,k}| \le \frac{W}{2}-m_{\mathrm{track}},
+\lvert e_{y,k}\rvert \le \frac{W}{2}-m_{\mathrm{track}},
 ```
 
-where `W=12 m` is the track width and `m_track` is a safety margin. The finish
+where $W=12~\mathrm{m}$ is the track width and $m_{\mathrm{track}}$ is a safety margin. The finish
 condition is checked by progress, Euclidean distance to the final point, and
 heading error:
 
 ```math
 \sigma_k \approx \sigma_f,
 \qquad
-\|r_k-r_f\|\le r_g,
+\lVert r_k-r_f\rVert\le r_g,
 \qquad
-|\mathrm{wrap}(\psi_k-\psi_f)|\le \psi_g.
+\lvert\mathrm{wrap}(\psi_k-\psi_f)\rvert\le \psi_g.
 ```
 
 Obstacles are also represented in track coordinates rather than pixels. Each
@@ -382,9 +382,9 @@ obstacle is a blocked Frenet rectangle:
 \mathcal{O}_i =
 \left\{
 (\sigma,e_y):
-|\sigma-\sigma_i|\le h_{\sigma,i},
+\lvert\sigma-\sigma_i\rvert\le h_{\sigma,i},
 \quad
-|e_y-e_{y,i}|\le h_{y,i}
+\lvert e_y-e_{y,i}\rvert\le h_{y,i}
 \right\}.
 ```
 
@@ -396,12 +396,12 @@ straight world-frame rectangle.
 
 | Map quantity | Used by controller for |
 | --- | --- |
-| `sigma` | progress reward, finish detection, obstacle longitudinal overlap |
-| `e_y` | track-boundary constraint, racing-line error, obstacle lateral overlap |
-| `psi_ref` | heading-error cost and tangent-speed reward |
-| `kappa` | curvature feed-forward, speed planning, lateral-acceleration estimate |
-| track width `W` | road feasibility and edge-margin penalties |
-| obstacle rectangles `O_i` | obstacle barrier cost and collision invalidation |
+| $\sigma$ | progress reward, finish detection, obstacle longitudinal overlap |
+| $e_y$ | track-boundary constraint, racing-line error, obstacle lateral overlap |
+| $\psi_{\mathrm{ref}}$ | heading-error cost and tangent-speed reward |
+| $\kappa$ | curvature feed-forward, speed planning, lateral-acceleration estimate |
+| track width $W$ | road feasibility and edge-margin penalties |
+| obstacle rectangles $\mathcal{O}_i$ | obstacle barrier cost and collision invalidation |
 
 The common constrained optimization template is
 
@@ -422,7 +422,7 @@ s_{k+1}=p_d(s_k,a_k),
 \qquad
 \mathrm{grip}(s_k)\le 1,
 \qquad
-|T_k|\le T_{\mathrm{slip}}.
+\lvert T_k\rvert\le T_{\mathrm{slip}}.
 ```
 
 The controllers differ mainly in how this finite-horizon problem is solved:
@@ -445,7 +445,7 @@ Common cost components:
 ## 8. Sample MPC
 
 The sampling controller generates candidate sequences of
-`(T_cmd, delta_cmd)`, simulates each rollout, rejects invalid trajectories, and
+$(T_{\mathrm{cmd}},\delta_{\mathrm{cmd}})$, simulates each rollout, rejects invalid trajectories, and
 applies only the first action of the best sequence.
 
 Its objective approximates
@@ -476,7 +476,7 @@ Sampling MPC cost terms:
 | Terminal progress | $5200(1-s_N/s_f)$ | Forces finite-horizon progress |
 | Terminal speed | $-260 v_N$ | Rewards fast exit from the horizon |
 
-The best successful sampling run in the current benchmark uses `N=35` and `60`
+The best successful sampling run in the current benchmark uses $N=35$ and 60
 samples. It reaches the goal in `8.80 s` with `90.29 km/h` exit speed.
 
 ![Sampling MPC, horizon 35, samples 60](figures/s_curve_mpc_steps108_samples60_h35.gif)
@@ -534,7 +534,7 @@ J =
 w_s d_s^2
 +w_e e_y^2
 +w_\psi \psi_e^2
-+w_a \|a_k-a_{k-1}\|^2
++w_a \lVert a_k-a_{k-1}\rVert^2
 +w_g g_k^2
 -w_v v_k
 -w_T T_{\mathrm{cmd},k}
@@ -571,8 +571,8 @@ CasADi MPC cost terms:
 | Terminal pose | $6500(e_{y,N}/r_g)^2+7200\psi_N^2+16000\delta_N^2$ | Enforces finish point, orientation, and straight steering |
 | Terminal speed | $-(520+1800\beta_f)v_N$ | Maximizes exit speed |
 
-The current best non-obstacle run uses `N=15`. It reaches the goal in `7.92 s`
-with an exit speed of `96.72 km/h`.
+The current best non-obstacle run uses $N=15$. It reaches the goal in
+`7.92 s` with an exit speed of `96.72 km/h`.
 
 ![CasADi MPC, horizon 15](figures/s_curve_casadi_pred15_sim99.gif)
 
@@ -584,7 +584,7 @@ CasADi MPC benchmark:
 | 35 | yes | goal | 8.16 | 91.66 | 163.15 | 3.35 | 20.22 | 25359.03 |
 | 45 | yes | goal | 8.24 | 85.13 | 165.16 | 2.19 | 21.34 | 5569.15 |
 
-The important observation is that the shorter `N=15` CasADi horizon performs
+The important observation is that the shorter $N=15$ CasADi horizon performs
 best in the current tuning. Longer horizons are not automatically better because
 the nonlinear program becomes harder to solve and the terminal cost can become
 overly conservative near the finish. CasADi MPC gives stronger finite-horizon
@@ -614,8 +614,8 @@ J_{\mathrm{obs}}
 \sum_i
 w_{\mathrm{obs}}
 \left[
-\max(0, h_{s,i}-|s_k-s_i|)
-\max(0, h_{y,i}-|e_{y,k}-e_{y,i}|)
+\max(0, h_{s,i}-\lvert s_k-s_i\rvert)
+\max(0, h_{y,i}-\lvert e_{y,k}-e_{y,i}\rvert)
 \right]^2.
 ```
 

@@ -252,7 +252,7 @@ T_{\mathrm{cmd}}=T_0+K_v(v_{\mathrm{ref}}-v).
 
 The final tested lateral PID values are:
 
-| Case | `K_p` | `K_i` | `K_d` | Steps |
+| Case | $K_p$ | $K_i$ | $K_d$ | Steps |
 | --- | ---: | ---: | ---: | ---: |
 | Conservative S-curve run | 0.03 | 0.002 | 0.015 | 104 |
 | Intermediate S-curve run | 0.08 | 0.002 | 0.04 | 120 |
@@ -262,13 +262,13 @@ PID cost interpretation:
 
 | Component | Equation | Effect |
 | --- | --- | --- |
-| Lateral proportional term | `-K_p e_y` | Reacts to current displacement from the centerline |
-| Lateral integral term | `-K_i I_y` | Reduces persistent lateral offset |
-| Lateral derivative term | `-K_d dot e_y` | Adds damping to lateral motion |
-| Curvature feed-forward | `atan(L kappa)` | Turns before lateral error appears |
-| Heading feedback | `K_psi e_psi` | Aligns the car with the local track tangent |
-| Speed loop | `T_0+K_v(v_ref-v)` | Tracks a target speed with rear torque |
-| Saturation | `clip(delta_cmd), clip(T_cmd)` | Enforces steering and torque limits |
+| Lateral proportional term | $-K_p e_y$ | Reacts to current displacement from the centerline |
+| Lateral integral term | $-K_i I_y$ | Reduces persistent lateral offset |
+| Lateral derivative term | $-K_d \dot e_y$ | Adds damping to lateral motion |
+| Curvature feed-forward | $\arctan(L\kappa)$ | Turns before lateral error appears |
+| Heading feedback | $K_\psi e_\psi$ | Aligns the car with the local track tangent |
+| Speed loop | $T_0+K_v(v_{\mathrm{ref}}-v)$ | Tracks a target speed with rear torque |
+| Saturation | $\mathrm{clip}(\delta_{\mathrm{cmd}}),\ \mathrm{clip}(T_{\mathrm{cmd}})$ | Enforces steering and torque limits |
 
 PID baseline on the S-curve with conservative gains:
 `Kp = 0.03`, `Ki = 0.002`, `Kd = 0.015`, 104 simulation steps.
@@ -433,14 +433,14 @@ Common cost components:
 
 | Term | Equation | Purpose |
 | --- | --- | --- |
-| Progress reward | `-w_p s_k / s_f` | Move forward along the track |
-| Tangent speed reward | `-w_v v_k cos(psi_k-psi_ref)` | Reward speed in the useful direction |
-| Exit speed reward | `-w_{v,f} v_N` | Maximize speed at the finish |
-| Finish distance | `w_f ||r_N-r_f||^2` | Reach the target point |
-| Heading error | `w_psi wrap(psi_k-psi_ref)^2` | Align with track and final pose |
-| Track boundary | `w_e max(0, |e_y|-e_{max})^2` | Stay inside the road |
-| Grip usage | `w_g max(0, grip_k-1)^2` | Avoid tire slip |
-| Smooth controls | `w_u ||a_k-a_{k-1}||^2` | Reduce oscillations |
+| Progress reward | $-w_p s_k / s_f$ | Move forward along the track |
+| Tangent speed reward | $-w_v v_k \cos(\psi_k-\psi_{\mathrm{ref}})$ | Reward speed in the useful direction |
+| Exit speed reward | $-w_{v,f} v_N$ | Maximize speed at the finish |
+| Finish distance | $w_f \lVert r_N-r_f\rVert^2$ | Reach the target point |
+| Heading error | $w_\psi\,\mathrm{wrap}(\psi_k-\psi_{\mathrm{ref}})^2$ | Align with track and final pose |
+| Track boundary | $w_e \max(0,\lvert e_y\rvert-e_{\max})^2$ | Stay inside the road |
+| Grip usage | $w_g \max(0,\mathrm{grip}_k-1)^2$ | Avoid tire slip |
+| Smooth controls | $w_u \lVert a_k-a_{k-1}\rVert^2$ | Reduce oscillations |
 
 ## 8. Sample MPC
 
@@ -466,15 +466,15 @@ Sampling MPC cost terms:
 
 | Component | Equation | Effect |
 | --- | --- | --- |
-| Running progress | `135(1-s_k/s_f)` | Pushes the rollout toward the finish |
-| Tangent speed | `-20 v_k cos(psi_k-psi_ref)` | Rewards speed aligned with the track |
-| Progress-speed coupling | `-9(s_k/s_f)v_k` | Makes speed more valuable near the exit |
-| Racing-line error | `w_r |e_{y,k}-e_{race}(s_k)|` | Pulls the car toward a handcrafted racing line |
-| Control smoothness | `w_T Delta T_cmd^2 + w_delta Delta delta_cmd^2` | Suppresses torque and steering jumps |
-| Track smoothness | `72 Delta e_y^2 + 18 Delta a_y^2` | Penalizes lateral weaving and lateral jerk |
-| Invalid rollout | `10^6 + 10^4(1-s_k/s_f)` | Rejects slip and off-track candidates |
-| Terminal progress | `5200(1-s_N/s_f)` | Forces finite-horizon progress |
-| Terminal speed | `-260 v_N` | Rewards fast exit from the horizon |
+| Running progress | $135(1-s_k/s_f)$ | Pushes the rollout toward the finish |
+| Tangent speed | $-20 v_k \cos(\psi_k-\psi_{\mathrm{ref}})$ | Rewards speed aligned with the track |
+| Progress-speed coupling | $-9(s_k/s_f)v_k$ | Makes speed more valuable near the exit |
+| Racing-line error | $w_r \lvert e_{y,k}-e_{\mathrm{race}}(s_k)\rvert$ | Pulls the car toward a handcrafted racing line |
+| Control smoothness | $w_T \Delta T_{\mathrm{cmd}}^2+w_\delta \Delta\delta_{\mathrm{cmd}}^2$ | Suppresses torque and steering jumps |
+| Track smoothness | $72\Delta e_y^2+18\Delta a_y^2$ | Penalizes lateral weaving and lateral jerk |
+| Invalid rollout | $10^6+10^4(1-s_k/s_f)$ | Rejects slip and off-track candidates |
+| Terminal progress | $5200(1-s_N/s_f)$ | Forces finite-horizon progress |
+| Terminal speed | $-260 v_N$ | Rewards fast exit from the horizon |
 
 The best successful sampling run in the current benchmark uses `N=35` and `60`
 samples. It reaches the goal in `8.80 s` with `90.29 km/h` exit speed.
@@ -556,20 +556,20 @@ CasADi MPC cost terms:
 
 | Component | Equation | Effect |
 | --- | --- | --- |
-| Finish gap | `(160+120 beta_exit)(s_f-s_k)_+ / s_f` | Keeps the optimizer moving forward |
-| Lateral error | `(6.5+0.45 beta_f)e_{y,k}^2` | Keeps the car in a feasible corridor |
-| Heading error | `(42+90 beta_exit+80 beta_f)psi_k^2` | Aligns the car, especially near finish |
-| Dive-to-apex bias | `120 beta_d(psi_k-psi_d)^2 + 18 beta_d(e_y-e_d)^2` | Encourages early turn-in |
-| Steering effort | `(0.4+9 beta_f)delta_cmd^2` | Avoids unnecessary steering near finish |
-| Torque effort | `6e-6 T_cmd^2 + 0.014 min(0,T_cmd)^2` | Mildly regularizes torque and discourages braking |
-| Control rate | `18 Delta T_cmd^2 + 360 Delta delta_cmd^2` | Smooths the optimized inputs |
-| Lateral acceleration | `4(a_y/a_{y,max})^2` | Reduces tire-limit abuse |
-| Edge barrier | `28000 max(0, |e_y|-e_{max})^2` | Keeps the car inside the track |
-| Grip buffer | `3600 max(0, grip-1)^2` | Penalizes slip risk |
-| Speed reward | `-(8+28 beta_exit+140 beta_f)v_{k+1}` | Rewards high speed, especially on exit |
-| Terminal finish | `9000((s_f-s_N)_+/s_f)^2` | Makes the final predicted state reach the goal |
-| Terminal pose | `6500(e_{y,N}/r_g)^2 + 7200 psi_N^2 + 16000 delta_N^2` | Enforces finish point, orientation, and straight steering |
-| Terminal speed | `-(520+1800 beta_f)v_N` | Maximizes exit speed |
+| Finish gap | $(160+120\beta_{\mathrm{exit}})(s_f-s_k)_+/s_f$ | Keeps the optimizer moving forward |
+| Lateral error | $(6.5+0.45\beta_f)e_{y,k}^2$ | Keeps the car in a feasible corridor |
+| Heading error | $(42+90\beta_{\mathrm{exit}}+80\beta_f)\psi_k^2$ | Aligns the car, especially near finish |
+| Dive-to-apex bias | $120\beta_d(\psi_k-\psi_d)^2+18\beta_d(e_y-e_d)^2$ | Encourages early turn-in |
+| Steering effort | $(0.4+9\beta_f)\delta_{\mathrm{cmd}}^2$ | Avoids unnecessary steering near finish |
+| Torque effort | $6\cdot10^{-6}T_{\mathrm{cmd}}^2+0.014\min(0,T_{\mathrm{cmd}})^2$ | Mildly regularizes torque and discourages braking |
+| Control rate | $18\Delta T_{\mathrm{cmd}}^2+360\Delta\delta_{\mathrm{cmd}}^2$ | Smooths the optimized inputs |
+| Lateral acceleration | $4(a_y/a_{y,\max})^2$ | Reduces tire-limit abuse |
+| Edge barrier | $28000\max(0,\lvert e_y\rvert-e_{\max})^2$ | Keeps the car inside the track |
+| Grip buffer | $3600\max(0,\mathrm{grip}-1)^2$ | Penalizes slip risk |
+| Speed reward | $-(8+28\beta_{\mathrm{exit}}+140\beta_f)v_{k+1}$ | Rewards high speed, especially on exit |
+| Terminal finish | $9000((s_f-s_N)_+/s_f)^2$ | Makes the final predicted state reach the goal |
+| Terminal pose | $6500(e_{y,N}/r_g)^2+7200\psi_N^2+16000\delta_N^2$ | Enforces finish point, orientation, and straight steering |
+| Terminal speed | $-(520+1800\beta_f)v_N$ | Maximizes exit speed |
 
 The current best non-obstacle run uses `N=15`. It reaches the goal in `7.92 s`
 with an exit speed of `96.72 km/h`.
@@ -627,12 +627,12 @@ Obstacle MPC cost terms:
 
 | Component | Equation | Effect |
 | --- | --- | --- |
-| Base CasADi MPC | `J_{casadi}` | Keeps the racing objective and finish requirements |
-| Obstacle overlap in `s` | `d_s=max(0,h_s-|s_k-s_o|)` | Activates near the obstacle longitudinal span |
-| Obstacle overlap in lateral coordinate | `d_y=max(0,h_y-|e_{y,k}-e_{y,o}|)` | Activates near the blocked track half |
-| Obstacle barrier | `w_obs(d_s d_y)^2` | Pushes trajectories away from blocked regions |
-| Collision invalidation | `contains(s,e_y,margin)` | Ends the rollout if the real trajectory hits an obstacle |
-| Obstacle safety metric | `min_i distance_to_obstacle_i` | Reported as minimum obstacle margin |
+| Base CasADi MPC | $J_{\mathrm{casadi}}$ | Keeps the racing objective and finish requirements |
+| Obstacle overlap in $s$ | $d_s=\max(0,h_s-\lvert s_k-s_o\rvert)$ | Activates near the obstacle longitudinal span |
+| Obstacle overlap in lateral coordinate | $d_y=\max(0,h_y-\lvert e_{y,k}-e_{y,o}\rvert)$ | Activates near the blocked track half |
+| Obstacle barrier | $w_{\mathrm{obs}}(d_s d_y)^2$ | Pushes trajectories away from blocked regions |
+| Collision invalidation | $\mathrm{contains}(s,e_y,\mathrm{margin})$ | Ends the rollout if the real trajectory hits an obstacle |
+| Obstacle safety metric | $\min_i d_{\mathrm{obstacle},i}$ | Reported as minimum obstacle margin |
 
 The first obstacle scenario blocks both classical apex regions on the inside
 half of the track. This forces the controller to leave the nominal racing line

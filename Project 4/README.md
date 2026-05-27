@@ -294,6 +294,15 @@ transparent, and easy to tune manually, but its behavior depends strongly on
 gain selection. Low gains give smooth motion with slower correction; high gains
 improve immediate response at the cost of stronger steering transients.
 
+For this task, PID is applicable only as a local centerline-tracking controller.
+It works when the desired path is fixed, the road is clear, and the car only has
+to reduce lateral and heading errors. If an obstacle appears on the road, PID
+does not have a mechanism for choosing a new collision-free path: it will still
+try to return to the same centerline unless an external planner changes the
+reference. The same limitation appears in racing-line selection, overtaking, and
+sudden track changes. PID can stabilize tracking of a known trajectory, but it
+does not decide which trajectory should be followed.
+
 ## Run
 
 From this folder:

@@ -2,7 +2,7 @@
 
 ## 1. Problem Definition
 
-![Obstacle avoidance problem statement](figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105_clean.gif)
+<img src="figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105_clean.gif" alt="Obstacle avoidance problem statement" width="87%">
 
 The project studies model predictive control for a rear-wheel-drive car on a
 single S-shaped racing-track section. The car must drive from a fixed initial
@@ -273,7 +273,7 @@ PID cost interpretation:
 PID baseline on the S-curve with conservative gains:
 $K_p=0.03$, $K_i=0.002$, $K_d=0.015$, 104 simulation steps.
 
-![Conservative PID S-curve run](figures/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif)
+<img src="figures/s_curve_pid_steps104_kp0.03_ki0.002_kd0.015.gif" alt="Conservative PID S-curve run" width="87%">
 
 | Steps | Time, s | Progress | Speed, km/h | Gas, % | Slip margin, N m | Steer, rad | Wheel torque, N m |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -282,7 +282,7 @@ $K_p=0.03$, $K_i=0.002$, $K_d=0.015$, 104 simulation steps.
 PID baseline on the S-curve with intermediate gains:
 $K_p=0.08$, $K_i=0.002$, $K_d=0.04$, 120 simulation steps.
 
-![Intermediate PID S-curve run](figures/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif)
+<img src="figures/s_curve_pid_steps120_kp0.08_ki0.002_kd0.04.gif" alt="Intermediate PID S-curve run" width="87%">
 
 | Steps | Time, s | Progress | Speed, km/h | Gas, % | Slip margin, N m | Steer, rad | Wheel torque, N m |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -291,7 +291,7 @@ $K_p=0.08$, $K_i=0.002$, $K_d=0.04$, 120 simulation steps.
 More aggressive PID tuning:
 $K_p=0.52$, $K_i=0.002$, $K_d=0.24$, 208 simulation steps.
 
-![Aggressive PID S-curve run](figures/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif)
+<img src="figures/s_curve_pid_steps208_kp0.52_ki0.002_kd0.24.gif" alt="Aggressive PID S-curve run" width="87%">
 
 | Steps | Time, s | Progress | Speed, km/h | Gas, % | Slip margin, N m | Steer, rad | Wheel torque, N m |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -479,7 +479,7 @@ Sampling MPC cost terms:
 The best successful sampling run in the current benchmark uses $N=35$ and 60
 samples. It reaches the goal in `8.80 s` with `90.29 km/h` exit speed.
 
-![Sampling MPC, horizon 35, samples 60](figures/s_curve_mpc_steps108_samples60_h35.gif)
+<img src="figures/s_curve_mpc_steps108_samples60_h35.gif" alt="Sampling MPC, horizon 35, samples 60" width="87%">
 
 Sampling MPC benchmark:
 
@@ -574,7 +574,7 @@ CasADi MPC cost terms:
 The current best non-obstacle run uses $N=15$. It reaches the goal in
 `7.92 s` with an exit speed of `96.72 km/h`.
 
-![CasADi MPC, horizon 15](figures/s_curve_casadi_pred15_sim99.gif)
+<img src="figures/s_curve_casadi_pred15_sim99.gif" alt="CasADi MPC, horizon 15" width="87%">
 
 CasADi MPC benchmark:
 
@@ -638,18 +638,18 @@ The first obstacle scenario blocks both classical apex regions on the inside
 half of the track. This forces the controller to leave the nominal racing line
 at both turns:
 
-![Obstacle CasADi MPC, inside apexes](figures/s_curve_obstacles_casadi_h15_steps110.gif)
+<img src="figures/s_curve_obstacles_casadi_h15_steps110.gif" alt="Obstacle CasADi MPC, inside apexes" width="87%">
 
 The second scenario keeps the first obstacle at the inside apex and moves the
 second obstacle to the outside half of the second apex:
 
-![Obstacle CasADi MPC, second outside](figures/s_curve_obstacles_second_outside_casadi_h15_steps106.gif)
+<img src="figures/s_curve_obstacles_second_outside_casadi_h15_steps106.gif" alt="Obstacle CasADi MPC, second outside" width="87%">
 
 The final scenario extends the second outside obstacle into a curved wall. It
 starts near the second apex, follows the outside half of the track, and ends
 before the finish so that the target point remains reachable:
 
-![Obstacle CasADi MPC, second outside wall](figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105.gif)
+<img src="figures/s_curve_obstacles_second_outside_wall_casadi_h15_steps105.gif" alt="Obstacle CasADi MPC, second outside wall" width="87%">
 
 The benchmark compares time to finish, exit speed, path length, smoothness, grip
 usage, and computational cost. The full CSV files are:
